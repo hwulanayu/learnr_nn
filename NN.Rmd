@@ -1,0 +1,352 @@
+---
+title: "Neural Network"
+author: "Team Algoritma"
+date: "2/21/2022"
+output:
+  learnr::tutorial:
+  fig.show : 'asis'
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr) # user interface for coding exercise
+knitr::opts_chunk$set(echo = TRUE)
+
+options(scipen = 99)
+
+# load library
+library(neuralnet)
+library(tidyverse)
+library(caret)
+library(parsons)
+```
+
+
+## Mengenal Neural Network
+
+Hi _Future Data Scientist_! Course ini akan membahas mengenai *Neural Network* dengan R. Neural network atau Artificial Neural Network (ANN) adalah metode machine learning yang terinspirasi dari cara kerja otak manusia, terutama pada bagian __arsitektur jaringan syaraf (neuron)__ dan __proses pembelajarannya__.
+
+Seperti yang sudah dijelaskan di material utama pada bagian Deep Learning, arsitektur jaringan saraf terdiri dari susunan "lapisan/layer" dan "simpul" (mewakili neuron) sedemikian rupa sehingga "informasi" mengalir dari satu kemudian dan diteruskan ke yang lain. Hal ini diinterpretasikan menjadi sebuah model neural network yang meengalirkan informasi atau input dan diproses melalui arsitektur yang terdiri dari:
+
+- Input Layer: Layer pertama dalam arsitektur NN. Jumlah Neuron-nya tergantung pada jumlah variabel X di data yang digunakan.
+- Hidden Layer: Layer antara input layer dan output layer. Jumlahnya dapat lebih dari 1 layer, yang menentukan adalah user.
+- Output Layer: Layer terakhir dalam arsitektur NN. Jumlah neuronnya tergantung dengan banyak variabel y kita.
+
+
+```{r letter-a, echo=FALSE}
+quiz(
+  question("Berikut pilihan yang BENAR mengenai fungsi softmax dan sigmoid adalah",
+           type = "single", correct = "Betul",
+           incorrect = "Jawaban Anda masih kurang tepat", 
+           allow_retry = TRUE, random_answer_order = FALSE,
+           answer("Softmax biasanya digunakan untuk hidden layer dan sigmoid untuk output layer"),
+           answer("Sigmoid biasanya digunakan untuk hidden layer dan softmax untuk output layer", correct = TRUE),
+           answer("Softmax digunakan untuk klasifikasi biner"),
+           answer('semua benar'))
+)
+```
+
+
+
+```{r letter-a1, echo=FALSE}
+quiz(
+  question("Output dari sigmoid activation function adalah dari range...",
+           type = "single", correct = "Betul",
+           incorrect = "Jawaban Anda masih kurang tepat", 
+           allow_retry = TRUE, random_answer_order = FALSE,
+           answer("0 ke 1", correct = TRUE),
+           answer("-1 ke 1"),
+           answer("-1 ke 0"),
+           answer('-inf ke inf'))
+)
+```
+
+## Case Regresi
+
+Pada latihan ini, kita akan menggunakan dataset abalone.csv yang terdiri dari 8 atribut dan satu target berupa 'Rings' atau jumlah cincin pada abalone. 
+
+Pada latihan ini, kita akan menggunakan dataset Boston yang tersedia pada package MASS. Dataset Boston adalah kumpulan data tentang nilai perumahan di pinggiran kota Boston. Business question yang dituju adalah memprediksi nilai median rumah yang ditempati pemilik (medv) menggunakan semua variabel yang tersedia.
+
+```{r abalone, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+# Read Data
+abalone <- read.csv("data_input/abalone.csv")
+```
+
+
+
+```{r}
+head(abalone)
+```
+
+Deskripsi Data:
+* `Sex` – M, F, and I (infant).
+* `Length` – pengukuran panjang tertinggi dari abalone
+* `Diameter` – perpendicular to length.
+* `Height` – tinggi abalone.
+* `Whole weight` – berat keseluruhan abalone.
+* `Shucked weight` – berat daging.
+* `Viscera weight` – berat perut (after bleeding).
+* `Shell weight` – berat kerang.
+* `Rings` – jumlah cincin 
+
+### Cek Dimensi Data
+
+```{r}
+dim(abalone)
+```
+
+### Exploratory Data Analysis
+
+Adakah tipe data yang belum sesuai?
+
+```{r}
+# koreksi tipe data
+abalone <- abalone %>% 
+  mutate_if(is.character, as.factor)
+head(abalone)
+```
+
+```{r d1, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "abalone"}
+
+```
+
+Apakah terdapat missing value?
+
+```{r}
+# cek missing value
+anyNA(abalone)
+```
+
+```{r d2, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "abalone"}
+
+```
+
+Dari data diatas jawab beberapa pertanyaan dibawah ini
+
+```{r letter-b, echo=FALSE}
+quiz(
+  question("Berapa banyak prediktor yang ada?",
+           type = "single", correct = "Betul",
+           incorrect = "Jawaban Anda masih kurang tepat", 
+           allow_retry = TRUE, random_answer_order = FALSE,
+           answer("1"),
+           answer("8", correct = TRUE),
+           answer("9"))
+)
+```
+
+### Cross Validation
+
+Bagi data menjadi data train dan data test dengan 80% data sebagai data train. simpan data train pada variabel `abalone_train` dan data test pada variabel `abalone_test`
+
+```{r}
+# your code here
+library(rsample)
+
+set.seed(123)
+
+index <- initial_split(data = abalone, prop = 0.8)
+
+abalone_train <- training(index)
+abalone_test <- testing(index)
+```
+
+```{r d9, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "abalone"}
+
+```
+
+### Data Preprocessing
+
+Ubah data faktor menjadi variable dummy menggunakan `model.matrix()`. Hal ini karena model neural network hanya menerima data numerik.
+
+```{r}
+# model.matrix(~nama_kolom, data)
+mm_matrix <- model.matrix(~Sex, data = abalone_train)
+
+
+# cek hasil model.matrix
+head(mm_matrix)
+```
+
+Gunakan `model.matrix()` untuk data abalone (variable prediktor + target) dan simpan ke dalam `abalone_m`
+
+```{r}
+abalone_m <- model.matrix(~., data = abalone_train) %>% 
+          as.data.frame()
+
+head(abalone_m)
+```
+
+```{r d3, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "abalone"}
+
+```
+### Scaling
+
+```{r}
+
+```
+
+### Build Model
+
+Fungsi `neuralnet()` hanya menerima formula lengkap; tidak menerima formula `target ~ .`, sehingga kita harus siapkan secara manual untuk formulanya:
+
+**1. Pembuatan formula**
+
+a. Ambil nama kolom data `abalone`
+
+```{r}
+colnames(abalone_m)
+```
+
+```{r d4, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "abalone"}
+
+```
+
+b. Menghilangkan "." pada kolom tertentu menggunakan `gsub()`. Hint: tanda titik merupakan _special character_ sehingga harus di-'escape'. 
+
+```{r}
+colnames(abalone_m) <- gsub(pattern = '\\.', replacement = '', colnames(abalone_m))
+colnames(abalone_m)
+```
+
+```{r d5, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "abalone"}
+
+```
+
+c. Kemudian kita buat formula untuk dimasukkan ke dalam model
+
+```{r}
+# memilih prediktor
+prediktor <- abalone_m %>% 
+            select(-c(`(Intercept)`, Rings)) %>% 
+            colnames()
+
+# membuat formula
+prediktor_m <- paste(prediktor, collapse = "+")
+
+formula_m <- paste("Rings ~", prediktor_m) %>% 
+            as.formula()
+formula_m
+
+```
+
+```{r d6, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "abalone"}
+
+```
+
+**2. Pembuatan model menggunakan `neuralnet()`**
+
+Buat model deep learning untuk kasus regresi dengan parameter:
+
+* gunakan set.seed(13)
+* jumlah hidden layer: 2
+* jumlah node pada hidden layer: h1 = 8; h2 = 4
+* jumlah percobaan pembuatan model: 1
+* act.fct: linear
+* err.fct: sse
+* linear.output: F
+
+set.seed(13)
+model_abalone <- neuralnet(formula = formula_m,
+                         data = abalone_m,
+                         hidden = 3, #membuat 2 hidden layer dengan jumlah nodes 5 dan 3
+                         rep = 1, # hanya membuat 1 model,
+                         err.fct = "sse",
+                         linear.output = T)
+
+
+```{r d7, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "abalone"}
+
+```
+
+
+```{r model_abalone, echo = FALSE}
+
+question_parsons(
+  initial = c(
+      "formula = formula_m,",
+      "hidden = C(5, 2),",
+      "hidden = 5,",
+      "rep = 1,",
+      "rep = 'best',",
+      'err.fct = "sse",',
+      'err.fct = "bce",',
+      "data = abalone_m,",      
+      'linear.output = T',
+      'linear.output = F',
+      'act.fct = "logistic",',
+      'act.fct = "softmax",'
+  ),
+  pass_if(
+    c(
+      "formula = formula_m,",
+      "data = abalone_m,",
+      "hidden = C(5, 2),",
+      "rep = 1,",
+      'err.fct = "sse",',
+      'act.fct = "logistic",',
+      'linear.output = T'
+    )
+  ),
+  fail_if(
+    ~length(.) < 6,
+    message = "Include at least six answers"
+  ),
+  fail_if(
+    function(x){"print()" %in% x},
+    message = "You should not include print() in your answer"
+  ),
+  fail_if(
+    ~{.[1] != "formula = formula_m"},
+    message = "Your solution should start with 'formula = formula_m'"
+  ),
+    fail_if(
+    ~{.[-1] != 'linear.output = T'},
+    message = "perhatikan sintax parameter jika ditambahkan pada akhir"
+  ),
+  problem_type = 'base'
+)
+```
+
+plot model `model_abalone`:
+
+```{r}
+#plot(model_abalone,rep = "1")
+```
+
+```{r d8, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "abalone"}
+
+```
+
+### Predict 
+
+Untuk prediksi kita dapat gunakan `compute()`
+
+#bank_nn_pred
+bank_nn_pred <- neuralnet::compute(x = model_bank,covariate = bank_m, rep =1)
+
+#inspect
+head(bank_nn_pred$net.result)
+
+
+### Evaluation
+
+
+
+
+
+
+
+
+
+
+## Case Klasifikasi
+
+## Neural Network dengan Keras
+
+
+Selamat, Anda telah menyelesaikan latihan dengan topik Neural Network. Semoga latihan ini berguna dan menambah pengetahuan Anda. Sampai jumpa di lain waktu.
+
+Team Algoritma,
+
+3/3/2022
