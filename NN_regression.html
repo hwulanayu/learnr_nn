@@ -11,8 +11,8 @@
 <meta name="author" content="Team Algoritma" />
 
 
-<meta name="progressive" content="false" />
-<meta name="allow-skip" content="false" />
+<meta name="progressive" content="true" />
+<meta name="allow-skip" content="true" />
 
 <title>Neural Network</title>
 
@@ -138,40 +138,37 @@ $(document).ready(function () {
 <pre class="r"><code>dim(data)</code></pre>
 <pre><code>## [1] 506  14</code></pre>
 <p>Adakah tipe data yang belum sesuai?</p>
-<pre class="r"><code># koreksi tipe data
-data &lt;- data %&gt;% 
-  mutate_if(is.character, as.factor)
-head(data)</code></pre>
-<div data-pagedtable="false">
-<script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["crim"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["zn"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["indus"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["chas"],"name":[4],"type":["int"],"align":["right"]},{"label":["nox"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["rm"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["age"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["dis"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["rad"],"name":[9],"type":["int"],"align":["right"]},{"label":["tax"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["ptratio"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["black"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["lstat"],"name":[13],"type":["dbl"],"align":["right"]},{"label":["medv"],"name":[14],"type":["dbl"],"align":["right"]}],"data":[{"1":"0.00632","2":"18","3":"2.31","4":"0","5":"0.538","6":"6.575","7":"65.2","8":"4.0900","9":"1","10":"296","11":"15.3","12":"396.90","13":"4.98","14":"24.0","_rn_":"1"},{"1":"0.02731","2":"0","3":"7.07","4":"0","5":"0.469","6":"6.421","7":"78.9","8":"4.9671","9":"2","10":"242","11":"17.8","12":"396.90","13":"9.14","14":"21.6","_rn_":"2"},{"1":"0.02729","2":"0","3":"7.07","4":"0","5":"0.469","6":"7.185","7":"61.1","8":"4.9671","9":"2","10":"242","11":"17.8","12":"392.83","13":"4.03","14":"34.7","_rn_":"3"},{"1":"0.03237","2":"0","3":"2.18","4":"0","5":"0.458","6":"6.998","7":"45.8","8":"6.0622","9":"3","10":"222","11":"18.7","12":"394.63","13":"2.94","14":"33.4","_rn_":"4"},{"1":"0.06905","2":"0","3":"2.18","4":"0","5":"0.458","6":"7.147","7":"54.2","8":"6.0622","9":"3","10":"222","11":"18.7","12":"396.90","13":"5.33","14":"36.2","_rn_":"5"},{"1":"0.02985","2":"0","3":"2.18","4":"0","5":"0.458","6":"6.430","7":"58.7","8":"6.0622","9":"3","10":"222","11":"18.7","12":"394.12","13":"5.21","14":"28.7","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
-</div>
 <div class="tutorial-exercise" data-label="d1" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
 <script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.checker":"NULL"}</script>
 </div>
+<div class="tutorial-exercise-support" data-label="d1-solution" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code># koreksi tipe data
+data &lt;- data %&gt;% 
+  mutate_if(is.character, as.factor)
+head(data)</code></pre>
+</div>
 <p>Apakah terdapat missing value?</p>
-<pre class="r"><code># cek missing value
-anyNA(data)</code></pre>
-<pre><code>## [1] FALSE</code></pre>
 <div class="tutorial-exercise" data-label="d2" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
 <script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.checker":"NULL"}</script>
+</div>
+<div class="tutorial-exercise-support" data-label="d2-solution" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code>anyNA(data)</code></pre>
 </div>
 </div>
 <div id="section-data-preprocessing" class="section level3">
 <h3>Data Preprocessing</h3>
 <p>Bagi data menjadi data train dan data test dengan 80% data sebagai data train. simpan data train pada variabel <code>train</code> dan data test pada variabel <code>test</code></p>
-<pre class="r"><code># your code here
-library(rsample)
-
-set.seed(13)
+<div class="tutorial-exercise" data-label="d3" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code>set.seed(13)</code></pre>
+<script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.checker":"NULL"}</script>
+</div>
+<div class="tutorial-exercise-support" data-label="d3-solution" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code>set.seed(13)
 
 index &lt;- initial_split(data = data, prop = 0.8)
 
 train &lt;- training(index)
 test &lt;- testing(index)</code></pre>
-<div class="tutorial-exercise" data-label="d3" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
-<script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.checker":"NULL"}</script>
 </div>
 <p><div class="panel-heading tutorial-quiz-title">Quiz</div></p>
 <div class="panel panel-default">
@@ -183,30 +180,29 @@ test &lt;- testing(index)</code></pre>
 </div>
 </div>
 <p>Gunakan <code>model.matrix()</code> untuk data abalone (variable prediktor + target) dan simpan ke dalam <code>abalone_m</code></p>
-<pre class="r"><code>train_m &lt;- model.matrix(~., data = train) %&gt;% 
+<div class="tutorial-exercise" data-label="d4" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.setup":true,"exercise.checker":"NULL"}</script>
+</div>
+<div class="tutorial-exercise-support" data-label="d4-solution" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code>train_m &lt;- model.matrix(~., data = train) %&gt;% 
           as.data.frame()
 
 head(train_m)</code></pre>
-<div data-pagedtable="false">
-<script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["(Intercept)"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["crim"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["zn"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["indus"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["chas"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["nox"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["rm"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["age"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["dis"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["rad"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["tax"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["ptratio"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["black"],"name":[13],"type":["dbl"],"align":["right"]},{"label":["lstat"],"name":[14],"type":["dbl"],"align":["right"]},{"label":["medv"],"name":[15],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"4.03841","3":"0","4":"18.10","5":"0","6":"0.5320","7":"6.229","8":"90.7","9":"3.0993","10":"24","11":"666","12":"20.2","13":"395.33","14":"12.87","15":"19.6","_rn_":"472"},{"1":"1","2":"0.66351","3":"20","4":"3.97","5":"0","6":"0.6470","7":"7.333","8":"100.0","9":"1.8946","10":"5","11":"264","12":"13.0","13":"383.29","14":"7.79","15":"36.0","_rn_":"259"},{"1":"1","2":"9.92485","3":"0","4":"18.10","5":"0","6":"0.7400","7":"6.251","8":"96.6","9":"2.1980","10":"24","11":"666","12":"20.2","13":"388.52","14":"16.44","15":"12.6","_rn_":"448"},{"1":"1","2":"8.98296","3":"0","4":"18.10","5":"1","6":"0.7700","7":"6.212","8":"97.4","9":"2.1222","10":"24","11":"666","12":"20.2","13":"377.73","14":"17.60","15":"17.8","_rn_":"357"},{"1":"1","2":"0.19539","3":"0","4":"10.81","5":"0","6":"0.4130","7":"6.245","8":"6.2","9":"5.2873","10":"4","11":"305","12":"19.2","13":"377.17","14":"7.54","15":"23.4","_rn_":"74"},{"1":"1","2":"0.02009","3":"95","4":"2.68","5":"0","6":"0.4161","7":"8.034","8":"31.9","9":"5.1180","10":"4","11":"224","12":"14.7","13":"390.55","14":"2.88","15":"50.0","_rn_":"205"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
-</div>
-<div class="tutorial-exercise" data-label="d4" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
-<script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.setup":true,"exercise.checker":"NULL"}</script>
 </div>
 </div>
 <div id="section-build-model" class="section level3">
 <h3>Build Model</h3>
 <p>Fungsi <code>neuralnet()</code> hanya menerima formula lengkap; tidak menerima formula <code>target ~ .</code>, sehingga kita harus siapkan secara manual untuk formulanya. Simpan model pada variabel <code>nn</code>.</p>
-<pre class="r"><code># Build Neural Network
+<div class="tutorial-exercise" data-label="d5" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.checker":"NULL"}</script>
+</div>
+<div class="tutorial-exercise-support" data-label="d5-solution" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code># Build Neural Network
 nn &lt;- neuralnet(medv ~ crim + zn + indus + chas + nox 
                 + rm + age + dis + rad + tax + 
                 ptratio + black + lstat, 
                 data = train, hidden = c(5, 3), 
                 linear.output = TRUE)</code></pre>
-<div class="tutorial-exercise" data-label="d5" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
-<script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.checker":"NULL"}</script>
 </div>
 <p>Jika running model terlalu lama, Anda dapat mencoba mencocokan parameter - parameter dalam fungsi neuralnet() yang digunakan untuk kasus regresi. Urutkan parameter sesuai dengan dokumentasi fungsi neuralnet[!]</p>
 <div class="panel panel-default">
@@ -218,43 +214,41 @@ nn &lt;- neuralnet(medv ~ crim + zn + indus + chas + nox
 </div>
 </div>
 <p>plot model <code>nn</code>:</p>
-<pre class="r"><code># Plot the neural network
-plot(nn)</code></pre>
 <div class="tutorial-exercise" data-label="d6" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
 <script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.checker":"NULL"}</script>
+</div>
+<div class="tutorial-exercise-support" data-label="d6-solution" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code># Plot the neural network
+plot(nn)</code></pre>
 </div>
 </div>
 <div id="section-predict" class="section level3">
 <h3>Predict</h3>
 <p>Untuk prediksi kita dapat gunakan <code>compute()</code></p>
-<pre class="r"><code># Predict on test data
+<div class="tutorial-exercise" data-label="d7" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.checker":"NULL"}</script>
+</div>
+<div class="tutorial-exercise-support" data-label="d7-solution" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code># Predict on test data
 pr.nn &lt;- neuralnet::compute(nn, test[,1:13])
 
 #inspect
 head(pr.nn$net.result)</code></pre>
-<pre><code>##        [,1]
-## 3  22.99893
-## 8  22.99893
-## 10 22.99893
-## 11 22.99893
-## 21 22.99893
-## 23 22.99893</code></pre>
-<div class="tutorial-exercise" data-label="d7" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
-<script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.checker":"NULL"}</script>
 </div>
 </div>
 <div id="section-evaluation" class="section level3">
 <h3>Evaluation</h3>
 <p>Evaluasi model dengan metrik mean square error</p>
-<pre class="r"><code># Compute mean squared error
-pr.nn_ &lt;- pr.nn$net.result * (max(data$medv) - min(data$medv)) 
-                                              + min(data$medv)</code></pre>
-<pre><code>## [1] 5</code></pre>
-<pre class="r"><code>test.r &lt;- (test$medv) * (max(data$medv) - min(data$medv)) + 
-                                              min(data$medv)
-MSE.nn &lt;- sum((test.r - pr.nn_)^2) / nrow(test)</code></pre>
 <div class="tutorial-exercise" data-label="d8" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
 <script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.checker":"NULL"}</script>
+</div>
+<div class="tutorial-exercise-support" data-label="d8-solution" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code># Compute mean squared error
+pr.nn_ &lt;- pr.nn$net.result * (max(data$medv) - min(data$medv)) 
+                                              + min(data$medv)
+test.r &lt;- (test$medv) * (max(data$medv) - min(data$medv)) + 
+                                              min(data$medv)
+MSE.nn &lt;- sum((test.r - pr.nn_)^2) / nrow(test)</code></pre>
 </div>
 </div>
 </div>
@@ -278,24 +272,22 @@ MSE.nn &lt;- sum((test.r - pr.nn_)^2) / nrow(test)</code></pre>
 <pre class="r"><code>dim(BreastCancer)</code></pre>
 <pre><code>## [1] 699  11</code></pre>
 <p>Adakah tipe data yang belum sesuai?</p>
-<pre class="r"><code># koreksi tipe data
-BreastCancer &lt;- BreastCancer %&gt;% 
-  mutate_if(is.character, as.factor)
-head(BreastCancer)</code></pre>
-<div data-pagedtable="false">
-<script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Id"],"name":[1],"type":["fct"],"align":["left"]},{"label":["Cl.thickness"],"name":[2],"type":["ord"],"align":["right"]},{"label":["Cell.size"],"name":[3],"type":["ord"],"align":["right"]},{"label":["Cell.shape"],"name":[4],"type":["ord"],"align":["right"]},{"label":["Marg.adhesion"],"name":[5],"type":["ord"],"align":["right"]},{"label":["Epith.c.size"],"name":[6],"type":["ord"],"align":["right"]},{"label":["Bare.nuclei"],"name":[7],"type":["fct"],"align":["left"]},{"label":["Bl.cromatin"],"name":[8],"type":["fct"],"align":["left"]},{"label":["Normal.nucleoli"],"name":[9],"type":["fct"],"align":["left"]},{"label":["Mitoses"],"name":[10],"type":["fct"],"align":["left"]},{"label":["Class"],"name":[11],"type":["fct"],"align":["left"]}],"data":[{"1":"1000025","2":"5","3":"1","4":"1","5":"1","6":"2","7":"1","8":"3","9":"1","10":"1","11":"benign","_rn_":"1"},{"1":"1002945","2":"5","3":"4","4":"4","5":"5","6":"7","7":"10","8":"3","9":"2","10":"1","11":"benign","_rn_":"2"},{"1":"1015425","2":"3","3":"1","4":"1","5":"1","6":"2","7":"2","8":"3","9":"1","10":"1","11":"benign","_rn_":"3"},{"1":"1016277","2":"6","3":"8","4":"8","5":"1","6":"3","7":"4","8":"3","9":"7","10":"1","11":"benign","_rn_":"4"},{"1":"1017023","2":"4","3":"1","4":"1","5":"3","6":"2","7":"1","8":"3","9":"1","10":"1","11":"benign","_rn_":"5"},{"1":"1017122","2":"8","3":"10","4":"10","5":"8","6":"7","7":"10","8":"9","9":"7","10":"1","11":"malignant","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
-</div>
 <div class="tutorial-exercise" data-label="d9" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
 <script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.checker":"NULL"}</script>
 </div>
+<div class="tutorial-exercise-support" data-label="d9-solution" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code># koreksi tipe data
+BreastCancer &lt;- BreastCancer %&gt;% 
+  mutate_if(is.character, as.factor)
+head(BreastCancer)</code></pre>
+</div>
 <p>Apakah terdapat missing value?</p>
-<pre class="r"><code># cek missing value
-anyNA(BreastCancer)</code></pre>
-<pre><code>## [1] TRUE</code></pre>
 <div class="tutorial-exercise" data-label="d10" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
 <script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.checker":"NULL"}</script>
+</div>
+<div class="tutorial-exercise-support" data-label="d10-solution" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code># cek missing value
+anyNA(BreastCancer)</code></pre>
 </div>
 <p>Apakah proporsi kelas target seimbang?</p>
 <pre class="r"><code># cek class imbalance</code></pre>
@@ -310,17 +302,17 @@ anyNA(BreastCancer)</code></pre>
 <script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.checker":"NULL"}</script>
 </div>
 <p>Bagi data menjadi data train dan data test dengan 80% data sebagai data train. simpan data train pada variabel <code>train</code> dan data test pada variabel <code>test</code></p>
-<pre class="r"><code># your code here
-library(rsample)
-
-set.seed(13)
+<div class="tutorial-exercise" data-label="d12" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code>set.seed(13)</code></pre>
+<script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.checker":"NULL"}</script>
+</div>
+<div class="tutorial-exercise-support" data-label="d12-solution" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code>set.seed(13)
 
 index &lt;- initial_split(data = BreastCancer, prop = 0.8)
 
 train_bc &lt;- training(index)
 test_bc &lt;- testing(index)</code></pre>
-<div class="tutorial-exercise" data-label="d12" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
-<script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.checker":"NULL"}</script>
 </div>
 </div>
 <div id="section-build-model-1" class="section level3">
@@ -330,65 +322,83 @@ test_bc &lt;- testing(index)</code></pre>
 <ol style="list-style-type: lower-alpha">
 <li>Ambil nama kolom data <code>BreastCancer</code></li>
 </ol>
-<pre class="r"><code>colnames(BreastCancer)</code></pre>
-<pre><code>##  [1] &quot;Id&quot;              &quot;Cl.thickness&quot;    &quot;Cell.size&quot;       &quot;Cell.shape&quot;     
-##  [5] &quot;Marg.adhesion&quot;   &quot;Epith.c.size&quot;    &quot;Bare.nuclei&quot;     &quot;Bl.cromatin&quot;    
-##  [9] &quot;Normal.nucleoli&quot; &quot;Mitoses&quot;         &quot;Class&quot;</code></pre>
 <div class="tutorial-exercise" data-label="d13" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
 <script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.setup":true,"exercise.checker":"NULL"}</script>
+</div>
+<div class="tutorial-exercise-support" data-label="d13-solution" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code>colnames(BreastCancer)</code></pre>
 </div>
 <ol start="2" style="list-style-type: lower-alpha">
 <li>Menghilangkan “.” pada kolom tertentu menggunakan <code>gsub()</code>. Hint: tanda titik merupakan <em>special character</em> sehingga harus di-‘escape’.</li>
 </ol>
-<pre class="r"><code>colnames(BreastCancer) &lt;- gsub(pattern = &#39;\\.&#39;, replacement = &#39;&#39;, colnames(BreastCancer))
-colnames(BreastCancer)</code></pre>
-<pre><code>##  [1] &quot;Id&quot;             &quot;Clthickness&quot;    &quot;Cellsize&quot;       &quot;Cellshape&quot;     
-##  [5] &quot;Margadhesion&quot;   &quot;Epithcsize&quot;     &quot;Barenuclei&quot;     &quot;Blcromatin&quot;    
-##  [9] &quot;Normalnucleoli&quot; &quot;Mitoses&quot;        &quot;Class&quot;</code></pre>
 <div class="tutorial-exercise" data-label="d14" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
 <script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.setup":"abalone","exercise.checker":"NULL"}</script>
+</div>
+<div class="tutorial-exercise-support" data-label="d14-solution" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code>colnames(BreastCancer) &lt;- gsub(pattern = &#39;\\.&#39;, replacement = &#39;&#39;, colnames(BreastCancer))
+colnames(BreastCancer)</code></pre>
 </div>
 <ol start="3" style="list-style-type: lower-alpha">
 <li>Kemudian kita buat formula untuk dimasukkan ke dalam model</li>
 </ol>
-<p>#memilih prediktor prediktor &lt;- BreastCancer %&gt;% select(Class) %&gt;% colnames()</p>
-<p>#membuat formula prediktor_m &lt;- paste(prediktor, collapse = “+”)</p>
-<p>formula_m &lt;- paste(“Class ~”, prediktor_m) %&gt;% as.formula() formula_m</p>
 <div class="tutorial-exercise" data-label="d15" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
 <script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.setup":true,"exercise.checker":"NULL"}</script>
 </div>
+<div class="tutorial-exercise-support" data-label="d15-solution" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code>#memilih prediktor
+prediktor &lt;- BreastCancer %&gt;% 
+            select(Class) %&gt;% 
+            colnames()
+
+#membuat formula
+prediktor_m &lt;- paste(prediktor, collapse = &quot;+&quot;)
+
+formula_m &lt;- paste(&quot;Class ~&quot;, prediktor_m) %&gt;% 
+            as.formula()
+formula_m</code></pre>
+</div>
 <p><strong>2. Pembuatan model menggunakan <code>neuralnet()</code></strong></p>
 <p>#Build Neural Network</p>
-<p>nn_bc &lt;- neuralnet(formula = formula_m, data = BreastCancer, hidden = c(4, 2), linear.output = FALSE)</p>
 <div class="tutorial-exercise" data-label="d16" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
 <script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.checker":"NULL"}</script>
 </div>
+<div class="tutorial-exercise-support" data-label="d16-solution" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code>nn_bc &lt;- neuralnet(formula = formula_m, 
+                data = BreastCancer, hidden = c(4, 2), 
+                linear.output = FALSE)</code></pre>
+</div>
 <p>plot model <code>nn_bc</code>:</p>
-<pre class="r"><code># Plot the neural network
-#plot(nn_bc)</code></pre>
 <div class="tutorial-exercise" data-label="d17" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
 <script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.checker":"NULL"}</script>
+</div>
+<div class="tutorial-exercise-support" data-label="d17-solution" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code># Plot the neural network
+plot(nn_bc)</code></pre>
 </div>
 </div>
 <div id="section-predict-1" class="section level3">
 <h3>Predict</h3>
 <p>Untuk prediksi kita dapat gunakan <code>compute()</code></p>
-<pre class="r"><code># Predict on test data
-#pr.nn &lt;- neuralnet::compute(nn_bc, test_bc[,1:13])
-
-#inspect
-#head(pr.nn$net.result)</code></pre>
 <div class="tutorial-exercise" data-label="d18" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
 <script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.checker":"NULL"}</script>
+</div>
+<div class="tutorial-exercise-support" data-label="d18-solution" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code># Predict on test data
+pr.nn &lt;- neuralnet::compute(nn_bc, test_bc[,1:13])
+
+inspect
+head(pr.nn$net.result)</code></pre>
 </div>
 </div>
 <div id="section-evaluation-1" class="section level3">
 <h3>Evaluation</h3>
 <p>Evaluasi model dengan melihat confusion matrix yang terbentuk</p>
-<pre class="r"><code>#cm=confusionMatrix(as.factor(ytest), pr.nn$net.result)
-#print(cm) </code></pre>
 <div class="tutorial-exercise" data-label="d19" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
 <script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.checker":"NULL"}</script>
+</div>
+<div class="tutorial-exercise-support" data-label="d19-solution" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code>cm=confusionMatrix(as.factor(ytest), pr.nn$net.result)
+print(cm) </code></pre>
 </div>
 </div>
 </div>
@@ -397,7 +407,11 @@ colnames(BreastCancer)</code></pre>
 <div id="section-data-preparation" class="section level3">
 <h3>Data Preparation</h3>
 <ol style="list-style-type: decimal">
-<li><p>Load dataset</p></li>
+<li>Load dataset</li>
+</ol>
+<pre class="r"><code>fashion_mnist &lt;- keras::dataset_fashion_mnist()</code></pre>
+<pre><code>## Loaded Tensorflow version 2.2.0</code></pre>
+<ol start="2" style="list-style-type: decimal">
 <li><p>Convert the data to matrix</p></li>
 <li><p>Cross Validation</p></li>
 <li><p>Prepare training and testing set (change to an array)</p></li>
@@ -440,6 +454,11 @@ library(parsons)
 library(MASS)
 library(rsample)
 library(mlbench)
+library(readr)
+library(keras)
+library(dplyr)
+#library(devtools)
+library(keras) 
 </script>
  
 <script type="application/shiny-prerendered" data-context="server">
@@ -480,7 +499,7 @@ output$`tutorial-exercise-d3-output` <- renderUI({
 </script>
  
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::question_prerendered_chunk(structure(list(type = "learnr_checkbox", label = "letter-a-1",     question = structure("Selain cross validation, berikut ini yang termasuk dalam data preprocessing adalah...", html = TRUE, class = c("html",     "character")), answers = list(structure(list(id = "lnr_ans_974c545",         option = "Normalization", value = "Normalization", label = structure("Normalization", html = TRUE, class = c("html",         "character")), correct = TRUE, message = NULL), class = c("tutorial_question_answer",     "tutorial_quiz_answer")), structure(list(id = "lnr_ans_2d13c8e",         option = "Scaling", value = "Scaling", label = structure("Scaling", html = TRUE, class = c("html",         "character")), correct = TRUE, message = NULL), class = c("tutorial_question_answer",     "tutorial_quiz_answer")), structure(list(id = "lnr_ans_ca9bc2d",         option = "Standardization", value = "Standardization",         label = structure("Standardization", html = TRUE, class = c("html",         "character")), correct = TRUE, message = NULL), class = c("tutorial_question_answer",     "tutorial_quiz_answer")), structure(list(id = "lnr_ans_ed1b400",         option = "Confusion matrix", value = "Confusion matrix",         label = structure("Confusion matrix", html = TRUE, class = c("html",         "character")), correct = FALSE, message = NULL), class = c("tutorial_question_answer",     "tutorial_quiz_answer"))), button_labels = list(submit = structure("Submit Answer", html = TRUE, class = c("html",     "character")), try_again = structure("Try Again", html = TRUE, class = c("html",     "character"))), messages = list(correct = structure("Betul", html = TRUE, class = c("html",     "character")), try_again = structure("Jawaban Anda masih kurang tepat", html = TRUE, class = c("html",     "character")), incorrect = structure("Jawaban Anda masih kurang tepat", html = TRUE, class = c("html",     "character")), message = NULL, post_message = NULL), ids = list(        answer = "letter-a-1-answer", question = "letter-a-1"),     loading = structure("<strong>Loading:<\u002fstrong> \nSelain cross validation, berikut ini yang termasuk dalam data preprocessing adalah...\n<br/><br/><br/>", html = TRUE, class = c("html",     "character")), random_answer_order = FALSE, allow_retry = TRUE,     seed = 1024442906.52296, options = list()), class = c("learnr_checkbox", "tutorial_question")))
+learnr:::question_prerendered_chunk(structure(list(type = "learnr_checkbox", label = "letter-a-1",     question = structure("Selain cross validation, berikut ini yang termasuk dalam data preprocessing adalah...", html = TRUE, class = c("html",     "character")), answers = list(structure(list(id = "lnr_ans_b5d7b12",         option = "Normalization", value = "Normalization", label = structure("Normalization", html = TRUE, class = c("html",         "character")), correct = TRUE, message = NULL), class = c("tutorial_question_answer",     "tutorial_quiz_answer")), structure(list(id = "lnr_ans_3f02dab",         option = "Scaling", value = "Scaling", label = structure("Scaling", html = TRUE, class = c("html",         "character")), correct = TRUE, message = NULL), class = c("tutorial_question_answer",     "tutorial_quiz_answer")), structure(list(id = "lnr_ans_63bf154",         option = "Standardization", value = "Standardization",         label = structure("Standardization", html = TRUE, class = c("html",         "character")), correct = TRUE, message = NULL), class = c("tutorial_question_answer",     "tutorial_quiz_answer")), structure(list(id = "lnr_ans_1764eba",         option = "Confusion matrix", value = "Confusion matrix",         label = structure("Confusion matrix", html = TRUE, class = c("html",         "character")), correct = FALSE, message = NULL), class = c("tutorial_question_answer",     "tutorial_quiz_answer"))), button_labels = list(submit = structure("Submit Answer", html = TRUE, class = c("html",     "character")), try_again = structure("Try Again", html = TRUE, class = c("html",     "character"))), messages = list(correct = structure("Betul", html = TRUE, class = c("html",     "character")), try_again = structure("Jawaban Anda masih kurang tepat", html = TRUE, class = c("html",     "character")), incorrect = structure("Jawaban Anda masih kurang tepat", html = TRUE, class = c("html",     "character")), message = NULL, post_message = NULL), ids = list(        answer = "letter-a-1-answer", question = "letter-a-1"),     loading = structure("<strong>Loading:<\u002fstrong> \nSelain cross validation, berikut ini yang termasuk dalam data preprocessing adalah...\n<br/><br/><br/>", html = TRUE, class = c("html",     "character")), random_answer_order = FALSE, allow_retry = TRUE,     seed = 2066017877.03794, options = list()), class = c("learnr_checkbox", "tutorial_question")))
 </script>
  
 <script type="application/shiny-prerendered" data-context="server">
@@ -498,7 +517,7 @@ output$`tutorial-exercise-d5-output` <- renderUI({
 </script>
  
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::question_prerendered_chunk(structure(list(type = "parsons_question", label = "model_nn",     question = NULL, answers = list(structure(list(id = "lnr_ans_6b7b37f",         option = c("formula = formula_m,", "data = abalone_m,",         "hidden = C(5, 2),", "rep = 1,", "err.fct = \"sse\",",         "act.fct = \"logistic\",", "linear.output = T"), value = c("formula = formula_m,",         "data = abalone_m,", "hidden = C(5, 2),", "rep = 1,",         "err.fct = \"sse\",", "act.fct = \"logistic\",", "linear.output = T"        ), label = structure("formula = formula_m,\ndata = abalone_m,\nhidden = C(5, 2),\nrep = 1,\nerr.fct = &quot;sse&quot;,\nact.fct = &quot;logistic&quot;,\nlinear.output = T", html = TRUE, class = c("html",         "character")), correct = TRUE, message = NULL), class = c("tutorial_question_answer",     "tutorial_quiz_answer"))), button_labels = list(submit = structure("Give feedback", html = TRUE, class = c("html",     "character")), try_again = structure("Try Again", html = TRUE, class = c("html",     "character"))), messages = list(correct = structure("Correct!", html = TRUE, class = c("html",     "character")), try_again = structure("Incorrect", html = TRUE, class = c("html",     "character")), incorrect = structure("Incorrect", html = TRUE, class = c("html",     "character")), message = NULL, post_message = NULL), ids = list(        answer = "model_nn-answer", question = "model_nn"), loading = structure("Loading: ", html = TRUE, class = c("html",     "character")), random_answer_order = TRUE, allow_retry = TRUE,     seed = 829093440.113923, options = list(initial = c("formula = formula_m,",     "hidden = C(5, 2),", "hidden = 5,", "rep = 1,", "rep = 'best',",     "err.fct = \"sse\",", "err.fct = \"bce\",", "data = abalone_m,",     "linear.output = T", "linear.output = F", "act.fct = \"logistic\",",     "act.fct = \"softmax\","), pass = list(), fail = list(structure(list(        fun = structure(function (..., .x = ..1, .y = ..2, . = ..1)         length(.) < 6, class = c("rlang_lambda_function", "function"        )), message = "Include at least six answers"), class = c("parsons_expectation_fail",     "list")), structure(list(fun = function (x)     {        "print()" %in% x    }, message = "You should not include print() in your answer"), class = c("parsons_expectation_fail",     "list")), structure(list(fun = structure(function (..., .x = ..1,         .y = ..2, . = ..1)     {        .[1] != "formula = formula_m"    }, class = c("rlang_lambda_function", "function")), message = "Your solution should start with 'formula = formula_m'"), class = c("parsons_expectation_fail",     "list")), structure(list(fun = structure(function (..., .x = ..1,         .y = ..2, . = ..1)     {        .[-1] != "linear.output = T"    }, class = c("rlang_lambda_function", "function")), message = "perhatikan sintax parameter jika ditambahkan pada akhir"), class = c("parsons_expectation_fail",     "list"))), problem_type = "base", sortable_options = structure(list(), class = "sortable_options"))), class = c("parsons_question", "tutorial_question")))
+learnr:::question_prerendered_chunk(structure(list(type = "parsons_question", label = "model_nn",     question = NULL, answers = list(structure(list(id = "lnr_ans_2cc86e",         option = c("formula = formula_m,", "data = abalone_m,",         "hidden = C(5, 2),", "rep = 1,", "err.fct = \"sse\",",         "act.fct = \"logistic\",", "linear.output = T"), value = c("formula = formula_m,",         "data = abalone_m,", "hidden = C(5, 2),", "rep = 1,",         "err.fct = \"sse\",", "act.fct = \"logistic\",", "linear.output = T"        ), label = structure("formula = formula_m,\ndata = abalone_m,\nhidden = C(5, 2),\nrep = 1,\nerr.fct = &quot;sse&quot;,\nact.fct = &quot;logistic&quot;,\nlinear.output = T", html = TRUE, class = c("html",         "character")), correct = TRUE, message = NULL), class = c("tutorial_question_answer",     "tutorial_quiz_answer"))), button_labels = list(submit = structure("Give feedback", html = TRUE, class = c("html",     "character")), try_again = structure("Try Again", html = TRUE, class = c("html",     "character"))), messages = list(correct = structure("Correct!", html = TRUE, class = c("html",     "character")), try_again = structure("Incorrect", html = TRUE, class = c("html",     "character")), incorrect = structure("Incorrect", html = TRUE, class = c("html",     "character")), message = NULL, post_message = NULL), ids = list(        answer = "model_nn-answer", question = "model_nn"), loading = structure("Loading: ", html = TRUE, class = c("html",     "character")), random_answer_order = TRUE, allow_retry = TRUE,     seed = 1233289502.4257, options = list(initial = c("formula = formula_m,",     "hidden = C(5, 2),", "hidden = 5,", "rep = 1,", "rep = 'best',",     "err.fct = \"sse\",", "err.fct = \"bce\",", "data = abalone_m,",     "linear.output = T", "linear.output = F", "act.fct = \"logistic\",",     "act.fct = \"softmax\","), pass = list(), fail = list(structure(list(        fun = structure(function (..., .x = ..1, .y = ..2, . = ..1)         length(.) < 6, class = c("rlang_lambda_function", "function"        )), message = "Include at least six answers"), class = c("parsons_expectation_fail",     "list")), structure(list(fun = function (x)     {        "print()" %in% x    }, message = "You should not include print() in your answer"), class = c("parsons_expectation_fail",     "list")), structure(list(fun = structure(function (..., .x = ..1,         .y = ..2, . = ..1)     {        .[1] != "formula = formula_m"    }, class = c("rlang_lambda_function", "function")), message = "Your solution should start with 'formula = formula_m'"), class = c("parsons_expectation_fail",     "list")), structure(list(fun = structure(function (..., .x = ..1,         .y = ..2, . = ..1)     {        .[-1] != "linear.output = T"    }, class = c("rlang_lambda_function", "function")), message = "perhatikan sintax parameter jika ditambahkan pada akhir"), class = c("parsons_expectation_fail",     "list"))), problem_type = "base", sortable_options = structure(list(), class = "sortable_options"))), class = c("parsons_question", "tutorial_question")))
 </script>
  
 <script type="application/shiny-prerendered" data-context="server">
@@ -605,7 +624,7 @@ output$`tutorial-exercise-d19-output` <- renderUI({
 <!--/html_preserve-->
 <!--html_preserve-->
 <script type="application/shiny-prerendered" data-context="execution_dependencies">
-{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages","version"]},"class":{"type":"character","attributes":{},"value":["data.frame"]},"row.names":{"type":"integer","attributes":{},"value":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119]}},"value":[{"type":"character","attributes":{},"value":["assertthat","backports","base","broom","bslib","caret","cellranger","checkmate","class","cli","codetools","colorspace","compiler","crayon","data.table","datasets","DBI","dbplyr","digest","dplyr","ellipsis","evaluate","fansi","fastmap","forcats","foreach","fs","furrr","future","future.apply","generics","ggplot2","globals","glue","gower","graphics","grDevices","grid","gtable","haven","hms","htmltools","htmlwidgets","httpuv","httr","ipred","iterators","jquerylib","jsonlite","knitr","later","lattice","lava","learnr","lifecycle","listenv","lubridate","magrittr","markdown","MASS","Matrix","methods","mime","mlbench","ModelMetrics","modelr","munsell","neuralnet","nlme","nnet","parallel","parallelly","parsons","pillar","pkgconfig","plyr","pROC","prodlim","promises","purrr","R6","Rcpp","readr","readxl","recipes","reprex","reshape2","rlang","rmarkdown","rpart","rprojroot","rsample","rstudioapi","rvest","sass","scales","shiny","sortable","splines","stats","stats4","stringi","stringr","survival","tibble","tidyr","tidyselect","tidyverse","timeDate","tools","tzdb","utf8","utils","vctrs","withr","xfun","xml2","xtable","yaml"]},{"type":"character","attributes":{},"value":["0.2.1","1.4.0","4.1.2","0.7.10","0.3.1","6.0-90","1.1.0","2.0.0","7.3-19","3.1.0","0.2-18","2.0-2","4.1.2","1.5.0","1.14.2","4.1.2","1.1.1","2.1.1","0.6.28","1.0.7","0.3.2","0.15","0.5.0","1.1.0","0.5.1","1.5.1","1.5.0","0.2.3","1.23.0","1.8.1","0.1.1","3.3.5","0.14.0","1.5.0","0.2.2","4.1.2","4.1.2","4.1.2","0.3.0","2.4.3","1.1.1","0.5.2","1.5.4","1.6.3","1.4.2","0.9-12","1.0.13","0.1.4","1.7.2","1.37","1.3.0","0.20-45","1.6.10","0.10.1","1.0.1","0.8.0","1.8.0","2.0.1","1.1","7.3-54","1.3-4","4.1.2","0.12","2.1-3","1.2.2.2","0.1.8","0.5.0","1.44.2","3.1-153","7.3-16","4.1.2","1.29.0","0.0.3.9000","1.6.4","2.0.3","1.8.6","1.18.0","2019.11.13","1.2.0.1","0.3.4","2.5.1","1.0.7","2.1.0","1.3.1","0.1.17","2.0.1","1.4.4","0.4.12","2.11","4.1-15","2.0.2","0.1.1","0.13","1.0.2","0.4.0","1.1.1","1.7.1","0.4.5","4.1.2","4.1.2","4.1.2","1.7.5","1.4.0","3.2-13","3.1.6","1.1.4","1.1.1","1.3.1","3043.102","4.1.2","0.2.0","1.2.2","4.1.2","0.3.8","2.4.3","0.28","1.3.2","1.8-4","2.2.1"]}]}]}
+{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages","version"]},"class":{"type":"character","attributes":{},"value":["data.frame"]},"row.names":{"type":"integer","attributes":{},"value":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129]}},"value":[{"type":"character","attributes":{},"value":["assertthat","backports","base","base64enc","broom","bslib","caret","cellranger","checkmate","class","cli","codetools","colorspace","compiler","crayon","data.table","datasets","DBI","dbplyr","digest","dplyr","ellipsis","evaluate","fansi","fastmap","forcats","foreach","fs","furrr","future","future.apply","generics","ggplot2","globals","glue","gower","graphics","grDevices","grid","gtable","haven","here","hms","htmltools","htmlwidgets","httpuv","httr","ipred","iterators","jquerylib","jsonlite","keras","knitr","later","lattice","lava","learnr","lifecycle","listenv","lubridate","magrittr","markdown","MASS","Matrix","methods","mime","mlbench","ModelMetrics","modelr","munsell","neuralnet","nlme","nnet","parallel","parallelly","parsons","pillar","pkgconfig","plyr","png","pROC","prodlim","promises","purrr","R6","rappdirs","Rcpp","readr","readxl","recipes","reprex","reshape2","reticulate","rlang","rmarkdown","rpart","rprojroot","rsample","rstudioapi","rvest","sass","scales","shiny","sortable","splines","stats","stats4","stringi","stringr","survival","tensorflow","tfruns","tibble","tidyr","tidyselect","tidyverse","timeDate","tools","tzdb","utf8","utils","vctrs","whisker","withr","xfun","xml2","xtable","yaml","zeallot"]},{"type":"character","attributes":{},"value":["0.2.1","1.4.0","4.1.2","0.1-3","0.7.10","0.3.1","6.0-90","1.1.0","2.0.0","7.3-19","3.1.0","0.2-18","2.0-2","4.1.2","1.5.0","1.14.2","4.1.2","1.1.1","2.1.1","0.6.28","1.0.7","0.3.2","0.15","0.5.0","1.1.0","0.5.1","1.5.1","1.5.0","0.2.3","1.23.0","1.8.1","0.1.1","3.3.5","0.14.0","1.5.0","0.2.2","4.1.2","4.1.2","4.1.2","0.3.0","2.4.3","1.0.1","1.1.1","0.5.2","1.5.4","1.6.3","1.4.2","0.9-12","1.0.13","0.1.4","1.7.2","2.8.0","1.37","1.3.0","0.20-45","1.6.10","0.10.1","1.0.1","0.8.0","1.8.0","2.0.1","1.1","7.3-54","1.3-4","4.1.2","0.12","2.1-3","1.2.2.2","0.1.8","0.5.0","1.44.2","3.1-153","7.3-16","4.1.2","1.29.0","0.0.3.9000","1.6.4","2.0.3","1.8.6","0.1-7","1.18.0","2019.11.13","1.2.0.1","0.3.4","2.5.1","0.3.3","1.0.7","2.1.0","1.3.1","0.1.17","2.0.1","1.4.4","1.24","0.4.12","2.11","4.1-15","2.0.2","0.1.1","0.13","1.0.2","0.4.0","1.1.1","1.7.1","0.4.5","4.1.2","4.1.2","4.1.2","1.7.5","1.4.0","3.2-13","2.8.0","1.5.0","3.1.6","1.1.4","1.1.1","1.3.1","3043.102","4.1.2","0.2.0","1.2.2","4.1.2","0.3.8","0.4","2.4.3","0.28","1.3.2","1.8-4","2.2.1","0.1.0"]}]}]}
 </script>
 <!--/html_preserve-->
 </div>

@@ -4,6 +4,8 @@ author: "Team Algoritma"
 date: "2/21/2022"
 output:
   learnr::tutorial:
+    progressive: true
+    allow_skip: true
   fig.show : 'asis'
 runtime: shiny_prerendered
 ---
@@ -31,6 +33,11 @@ library(parsons)
 library(MASS)
 library(rsample)
 library(mlbench)
+library(readr)
+library(keras)
+library(dplyr)
+#library(devtools)
+library(keras) 
 ```
 
 
@@ -83,47 +90,43 @@ dim(data)
 
 Adakah tipe data yang belum sesuai?
 
-```{r}
+```{r d1, exercise = TRUE, exercise.eval = TRUE}
+
+```
+
+```{r d1-solution}
 # koreksi tipe data
 data <- data %>% 
   mutate_if(is.character, as.factor)
 head(data)
 ```
 
-```{r d1, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
-
-```
-
 Apakah terdapat missing value?
 
-```{r}
-# cek missing value
+```{r d2, exercise = TRUE, exercise.eval = TRUE}
+
+```
+
+```{r d2-solution}
 anyNA(data)
 ```
-
-```{r d2, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
-
-```
-
 
 ### Data Preprocessing
 
 Bagi data menjadi data train dan data test dengan 80% data sebagai data train. simpan data train pada variabel `train` dan data test pada variabel `test`
 
-```{r}
-# your code here
-library(rsample)
+```{r d3, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
+set.seed(13)
 
+```
+
+```{r d3-solution}
 set.seed(13)
 
 index <- initial_split(data = data, prop = 0.8)
 
 train <- training(index)
 test <- testing(index)
-```
-
-```{r d3, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
-
 ```
 
 ```{r letter-a, echo=FALSE}
@@ -141,33 +144,32 @@ quiz(
 
 Gunakan `model.matrix()` untuk data abalone (variable prediktor + target) dan simpan ke dalam `abalone_m`
 
-```{r}
+```{r d4, exercise = TRUE, exercise.eval = TRUE, exercise.setup = TRUE}
+
+```
+
+```{r d4-solution}
 train_m <- model.matrix(~., data = train) %>% 
           as.data.frame()
 
 head(train_m)
 ```
 
-```{r d4, exercise = TRUE, exercise.eval = TRUE, exercise.setup = TRUE}
-
-```
-
 ### Build Model
 
 Fungsi `neuralnet()` hanya menerima formula lengkap; tidak menerima formula `target ~ .`, sehingga kita harus siapkan secara manual untuk formulanya. Simpan model pada variabel `nn`.
 
-```{r}
+```{r d5, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
+
+```
+
+```{r d5-solution}
 # Build Neural Network
 nn <- neuralnet(medv ~ crim + zn + indus + chas + nox 
                 + rm + age + dis + rad + tax + 
                 ptratio + black + lstat, 
                 data = train, hidden = c(5, 3), 
                 linear.output = TRUE)
-```
-
-
-```{r d5, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
-
 ```
 
 Jika running model terlalu lama, Anda dapat mencoba mencocokan parameter - parameter dalam fungsi neuralnet() yang digunakan untuk kasus regresi. Urutkan parameter sesuai dengan dokumentasi fungsi neuralnet[!]
@@ -221,20 +223,24 @@ question_parsons(
 
 plot model `nn`:
 
-```{r}
-# Plot the neural network
-plot(nn)
-```
-
 ```{r d6, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
 
+```
+
+```{r d6-solution}
+# Plot the neural network
+plot(nn)
 ```
 
 ### Predict 
 
 Untuk prediksi kita dapat gunakan `compute()`
 
-```{r}
+```{r d7, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
+
+```
+
+```{r d7-solution}
 # Predict on test data
 pr.nn <- neuralnet::compute(nn, test[,1:13])
 
@@ -242,15 +248,15 @@ pr.nn <- neuralnet::compute(nn, test[,1:13])
 head(pr.nn$net.result)
 ```
 
-```{r d7, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
-
-```
-
 ### Evaluation
 
 Evaluasi model dengan metrik mean square error
 
-```{r}
+```{r d8, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
+
+```
+
+```{r d8-solution}
 # Compute mean squared error
 pr.nn_ <- pr.nn$net.result * (max(data$medv) - min(data$medv)) 
                                               + min(data$medv)
@@ -259,20 +265,10 @@ test.r <- (test$medv) * (max(data$medv) - min(data$medv)) +
 MSE.nn <- sum((test.r - pr.nn_)^2) / nrow(test)
 ```
 
-```{r d8, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
-
-```
-
-
-
-
-
-
-
 
 ## Case Klasifikasi
 
-Pada case klasifikasi ini, kita akan menggunakan dataset __Wisconsin Breast Cancer__.  Dataset diambil dari [UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+(Original)
+Pada case klasifikasi ini, kita akan menggunakan dataset __Wisconsin Breast Cancer__.  Dataset diambil dari (UCI Machine Learning Repository)[https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+(Original)]
 
 __Business question__: Prediksi apakah kanker termasuk kategori ganas (malignant) atau jinak (benign) dari rincian biopsi.
 
@@ -317,26 +313,26 @@ dim(BreastCancer)
 
 Adakah tipe data yang belum sesuai?
 
-```{r}
+```{r d9, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
+
+```
+
+```{r d9-solution}
 # koreksi tipe data
 BreastCancer <- BreastCancer %>% 
   mutate_if(is.character, as.factor)
 head(BreastCancer)
 ```
 
-```{r d9, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
-
-```
-
 Apakah terdapat missing value?
-
-```{r}
-# cek missing value
-anyNA(BreastCancer)
-```
 
 ```{r d10, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
 
+```
+
+```{r d10-solution}
+# cek missing value
+anyNA(BreastCancer)
 ```
 
 Apakah proporsi kelas target seimbang?
@@ -358,20 +354,17 @@ Take out variabel yang tidak dibutuhkan dalam model:
 
 Bagi data menjadi data train dan data test dengan 80% data sebagai data train. simpan data train pada variabel `train` dan data test pada variabel `test`
 
-```{r}
-# your code here
-library(rsample)
+```{r d12, exercise = TRUE, exercise.eval = TRUE}
+set.seed(13)
+```
 
+```{r d12-solution}
 set.seed(13)
 
 index <- initial_split(data = BreastCancer, prop = 0.8)
 
 train_bc <- training(index)
 test_bc <- testing(index)
-```
-
-```{r d12, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
-
 ```
 
 ### Build Model
@@ -382,27 +375,32 @@ Fungsi `neuralnet()` hanya menerima formula lengkap; tidak menerima formula `tar
 
 a. Ambil nama kolom data `BreastCancer`
 
-```{r}
-colnames(BreastCancer)
-```
-
 ```{r d13, exercise = TRUE, exercise.eval = TRUE, exercise.setup = TRUE}
 
 ```
 
-b. Menghilangkan "." pada kolom tertentu menggunakan `gsub()`. Hint: tanda titik merupakan _special character_ sehingga harus di-'escape'. 
-
-```{r}
-colnames(BreastCancer) <- gsub(pattern = '\\.', replacement = '', colnames(BreastCancer))
+```{r d13-solution}
 colnames(BreastCancer)
 ```
+
+b. Menghilangkan "." pada kolom tertentu menggunakan `gsub()`. Hint: tanda titik merupakan _special character_ sehingga harus di-'escape'. 
 
 ```{r d14, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "abalone"}
 
 ```
 
+```{r d14-solution}
+colnames(BreastCancer) <- gsub(pattern = '\\.', replacement = '', colnames(BreastCancer))
+colnames(BreastCancer)
+```
+
 c. Kemudian kita buat formula untuk dimasukkan ke dalam model
 
+```{r d15, exercise = TRUE, exercise.eval = TRUE, exercise.setup = TRUE}
+
+```
+
+```{r d15-solution}
 #memilih prediktor
 prediktor <- BreastCancer %>% 
             select(Class) %>% 
@@ -414,77 +412,70 @@ prediktor_m <- paste(prediktor, collapse = "+")
 formula_m <- paste("Class ~", prediktor_m) %>% 
             as.formula()
 formula_m
-
-```{r}
-
-
-```
-
-```{r d15, exercise = TRUE, exercise.eval = TRUE, exercise.setup = TRUE}
-
 ```
 
 **2. Pembuatan model menggunakan `neuralnet()`**
 
 #Build Neural Network
 
-nn_bc <- neuralnet(formula = formula_m, 
-                data = BreastCancer, hidden = c(4, 2), 
-                linear.output = FALSE)
-                
-```{r}
+```{r d16, exercise = TRUE, exercise.eval = TRUE}
 
 ```
 
-```{r d16, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
-
+```{r d16-solution}
+nn_bc <- neuralnet(formula = formula_m, 
+                data = BreastCancer, hidden = c(4, 2), 
+                linear.output = FALSE)
 ```
 
 plot model `nn_bc`:
 
-```{r}
-# Plot the neural network
-#plot(nn_bc)
+```{r d17, exercise = TRUE, exercise.eval = TRUE}
+
 ```
 
-```{r d17, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
-
+```{r d17-solution}
+# Plot the neural network
+plot(nn_bc)
 ```
 
 ### Predict 
 
 Untuk prediksi kita dapat gunakan `compute()`
 
-```{r}
-# Predict on test data
-#pr.nn <- neuralnet::compute(nn_bc, test_bc[,1:13])
+```{r d18, exercise = TRUE, exercise.eval = TRUE}
 
-#inspect
-#head(pr.nn$net.result)
 ```
 
-```{r d18, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
+```{r d18-solution}
+# Predict on test data
+pr.nn <- neuralnet::compute(nn_bc, test_bc[,1:13])
 
+inspect
+head(pr.nn$net.result)
 ```
 
 ### Evaluation
 
 Evaluasi model dengan melihat confusion matrix yang terbentuk
 
-```{r}
-#cm=confusionMatrix(as.factor(ytest), pr.nn$net.result)
-#print(cm) 
-```
-
 ```{r d19, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
 
 ```
 
+```{r d19-solution}
+cm=confusionMatrix(as.factor(ytest), pr.nn$net.result)
+print(cm) 
+```
 
 ## Neural Network dengan Keras
 
 ### Data Preparation
 1. Load dataset
+
+```{r}
+fashion_mnist <- keras::dataset_fashion_mnist()
+```
 
 2. Convert the data to matrix
 
