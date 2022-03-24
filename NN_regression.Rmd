@@ -45,6 +45,144 @@ library(keras)
 
 Hi _Future Data Scientist_! Course ini akan membahas mengenai *Neural Network* dengan R. Neural network atau Artificial Neural Network (ANN) adalah metode machine learning yang terinspirasi dari cara kerja otak manusia, terutama pada bagian __arsitektur jaringan syaraf (neuron)__ dan __proses pembelajarannya__.
 
+```{r q1, echo=FALSE}
+quiz(caption='1',
+  question("Pernyataan di bawah ini yang benar mengenai Neural Network, KECUALI…",
+           type = "learnr_radio", correct = "Betul!",
+           incorrect = "Jawaban Anda masih kurang tepat", 
+           allow_retry = TRUE, random_answer_order = TRUE,
+           answer("backpropagation dihitung menggunakan metode chain rule"),
+           answer("semakin banyak jumlah epoch, semakin tinggi akurasi model", correct = T),
+           answer("jumlah neuron pada hidden layer ditentukan oleh user"),
+           answer('dataset dengan kelas/label imbalance dapat menggunakan recall sebagai metrik evaluasi'))
+)
+```
+
+2. Urutkan term dengan definisi di bawah ini! 
+
+*Hint: beberapa terms tidak ada pada definisi berikut. Pilih term - term yang tepat!*
+
+a. Informasi yang dibawa oleh setiap neuron, sama seperti slope pada regresi. 
+b. nilai intercept
+c. Fungsi untuk standarisasi hasil perhitungan
+d. Proses membawa data input melewati tiap neuron pada hidden layer sampai pada output layer yang nantinya akan dihitung errornya
+e. Proses membawa error yang didapat dari forward propagation untuk mengupdate setiap weight dan bias.
+f. Error. Selisih antara hasil prediksi dan data aktual.
+g. Banyaknya proses iterasi (1x forward dan 1x backward) dalam training model.
+
+```{r matching_terms, echo = FALSE}
+
+question_parsons(caption='2',
+  initial = c(
+    'backpropogation',
+    'hidden layer',
+    'cost function',
+    'layer',
+    'epoch',
+    'activation function',
+    'Forward propagation',
+    'weight',
+    'output layer',
+    'bias',
+    'input layer'
+  ),
+  pass_if(
+    c(
+    'weight',
+    'bias',
+    'activation function',
+    'Forward propagation',
+    'backpropogation',
+    'cost function',
+    'epoch'
+    )
+  ),
+  fail_if(
+    ~length(.) < 7,
+    message = "Include at least seven answers"
+  ),
+  problem_type = 'base'
+)
+```
+
+```{r q3, echo=FALSE}
+quiz(caption='3',
+  question("Mengapa tiap inisialisasi bobot, nilainya berbeda?",
+           type = "learnr_radio", correct = "Betul! Agar inisialisasi bobot bernilai sama setiap dijalankan, Anda dapat menggunakan fungsi set.seed().",
+           incorrect = "Jawaban Anda masih kurang tepat", 
+           allow_retry = TRUE, random_answer_order = TRUE,
+           answer("inisialisasi bobot dilakukan secara random", correct = T),
+           answer("inisialisasi bobot dipengaruhi training data"),
+           answer("bergantung pada fungsi aktivasi yang digunakan"),
+           answer('inisialisasi bobot diambil dari jumlah node pada input layer'))
+)
+```
+
+```{r q4, echo=FALSE}
+quiz(caption='4',
+  question("Perbedaan antara Neural Network dan Deep Learning adalah..",
+           type = "learnr_radio", correct = "Betul!",
+           incorrect = "Jawaban Anda masih kurang tepat", 
+           allow_retry = TRUE, random_answer_order = TRUE,
+           answer("jumlah input layer"),
+           answer("jumlah hidden layer", correct = T),
+           answer("jumlah output layer"),
+           answer('semua pernyataan benar'))
+)
+```
+
+```{r q5, echo=FALSE}
+quiz(caption='5',
+  question("Mengapa inisialiasi bobot tidak dimulai dari nilai nol?",
+           type = "learnr_checkbox", correct = "Betul!",
+           incorrect = "Jawaban Anda masih kurang tepat. Anda dapat memilih lebih dari satu pilihan jawaban", 
+           allow_retry = TRUE, random_answer_order = TRUE,
+           answer("inisialisasi bobot yang konstan akan mengarah kepada kinerja model yang buruk", correct = T),
+           answer("tiap neuron di tiap layer akan mempunyai bobot yang sama", correct = T),
+           answer("bobot tiap neuron akan menjadi terlalu besar sehingga menimbulkan vanishing gradient problem"),
+           answer('neuron akan mempelajari fitur yang sama selama pelatihan', correct = T))
+)
+```
+
+```{r q6, echo=FALSE}
+quiz(caption='6',
+  question("Mengapa kita memerlukan fungsi aktivasi (activation function) pada neural network?",
+           type = "learnr_checkbox", correct = "Betul!",
+           incorrect = "Jawaban Anda masih kurang tepat. Anda dapat memilih lebih dari satu pilihan jawaban", 
+           allow_retry = TRUE, random_answer_order = TRUE,
+           answer("fungsi aktivasi mengatur output dari suatu neuron", correct = T),
+           answer("menambahkan non-linearitas pada neural network", correct = T),
+           answer("agar nilai yang teruskan oleh neuron sudah dalam bentuk/range yang sesuai", correct = T),
+           answer('activation function digunakan untuk mengevaluasi nilai error saat forward propagation'))
+)
+```
+
+```{r q7, echo=FALSE}
+quiz(caption='7',
+  question("Pernyataan di bawah ini yang benar mengenai konsep Neural Network adalah...",
+           type = "learnr_button", correct = "Betul!",
+           incorrect = "Jawaban Anda masih kurang tepat", 
+           allow_retry = TRUE, random_answer_order = TRUE,
+           answer("activation function sigmoid cocok untuk kasus biner karena mempunyai range nilai probabilitas", correct = T),
+           answer("activation function ReLu cocok untuk output layer pada kasus klasifikasi gambar"),
+           answer("activation function tanh cocok untuk kasus data image karena range nilai sesuai dengan range"),
+           answer('semua pernyataan benar'))
+)
+```
+
+```{r q8, echo=FALSE}
+quiz(caption='8',
+  question("Kasus prediksi jumlah penjualan pada suatu perusahaan merupakan salah satu kasus yang menggunakan nilai ___ sebagai cost function pada modelnya.",
+           type = "learnr_checkbox", correct = "Betul!",
+           incorrect = "Jawaban Anda masih kurang tepat", 
+           allow_retry = TRUE, random_answer_order = TRUE,
+           answer("mean squared error", correct = T),
+           answer("binary cross entropy"),
+           answer("cross entropy"),
+           answer('sum of squared error', correct = T))
+)
+```
+
 ## Case Regresi
 
 Pada latihan ini, kita akan menggunakan dataset Boston yang tersedia pada package MASS. Dataset Boston adalah kumpulan data tentang nilai perumahan di pinggiran kota Boston. 
