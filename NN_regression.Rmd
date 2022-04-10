@@ -21,7 +21,12 @@ runtime: shiny_prerendered
 
 ```{r setup, include=FALSE}
 library(learnr) # user interface for coding exercise
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.align = "center",
+  comment = "#>")
 
 options(scipen = 99)
 
@@ -43,7 +48,7 @@ library(keras)
 
 ## Mengenal Neural Network
 
-Hi _Future Data Scientist_! Course ini akan membahas mengenai *Neural Network* dengan R. Neural network atau Artificial Neural Network (ANN) adalah metode machine learning yang terinspirasi dari cara kerja otak manusia, terutama pada bagian __arsitektur jaringan syaraf (neuron)__ dan __proses pembelajarannya__.
+Hi _Future Data Scientist_! Course ini akan membahas mengenai *Neural Network* dengan R. Neural network atau Artificial Neural Network (ANN) adalah metode machine learning yang terinspirasi dari cara kerja otak manusia, terutama pada bagian __arsitektur jaringan syaraf (neuron)__ dan __proses pembelajarannya__. Pada bagian ini, terdapat beberapa pertanyaan me-refresh kembali pengetahuan Anda tentang Neural Network.
 
 ```{r q1, echo=FALSE}
 quiz(caption='1',
@@ -160,7 +165,7 @@ quiz(caption='6',
 ```{r q7, echo=FALSE}
 quiz(caption='7',
   question("Pernyataan di bawah ini yang benar mengenai konsep Neural Network adalah...",
-           type = "learnr_button", correct = "Betul!",
+           type = "learnr_radio", correct = "Betul!",
            incorrect = "Jawaban Anda masih kurang tepat", 
            allow_retry = TRUE, random_answer_order = TRUE,
            answer("activation function sigmoid cocok untuk kasus biner karena mempunyai range nilai probabilitas", correct = T),
@@ -612,16 +617,115 @@ print(cm)
 1. Load dataset
 
 ```{r}
-fashion_mnist <- keras::dataset_fashion_mnist()
+# read fashion mnist train dan test data
+fashion_mnist <- read.csv("data_input/fashionmnist/train.csv")
+fashion_test <- read_csv("data_input/fashionmnist/test.csv")
+head(fashion_mnist)
+```
+
+### Exploratory Data Analysis
+1. Cek dimensi data
+
+```{r d20, exercise = TRUE, exercise.eval = TRUE, echo=FALSE}
+dim(fashion_mnist)
+```
+
+Inspect 6 data awal
+```{r d21, exercise = TRUE, exercise.eval = TRUE, echo=FALSE}
+fashion_mnist$label %>%
+  table() %>%
+  prop.table()
+
+ncol(fashion_mnist) - 1
+
+fashion_mnist %>%
+  dplyr::select(-label) %>%
+  range()
+```
+
+Dari data di atas, coba jawab pertanyaan-pertanyaan di bawah ini:
+```{r q_nn_1, echo=FALSE}
+quiz(caption='EDA',
+  question("Berapa banyak category yang ada pada kelas target? dan bagaimana proporsinya?",
+           type = "learnr_radio", correct = "Betul!",
+           incorrect = "Jawaban Anda masih kurang tepat", 
+           allow_retry = TRUE, random_answer_order = TRUE,
+           answer("9, tidak seimbang"),
+           answer("10, seimbang", correct = T),
+           answer("9, seimbang"),
+           answer('10, tidak seimbang'))
+)
+```
+
+```{r q_nn_2, echo=FALSE}
+quiz(caption='EDA',
+  question("Berapa banyak prediktor yang ada?",
+           type = "learnr_radio", correct = "Betul!",
+           incorrect = "Jawaban Anda masih kurang tepat. hint: jangan lupa kurangi dengan kolom label", 
+           allow_retry = TRUE, random_answer_order = TRUE,
+           answer("784", correct = T),
+           answer("785"),
+           answer("9"),
+           answer('10'))
+)
+```
+
+2. Visualisasi data
+
+```{r include=FALSE}
+vizTrain <- function(input) {
+    
+    dimmax <- sqrt(ncol(fashion_mnist[, -1]))
+    
+    dimn <- ceiling(sqrt(nrow(input)))
+    par(mfrow = c(dimn, dimn), mar = c(0.1, 0.1, 0.1, 
+        0.1))
+    
+    for (i in 1:nrow(input)) {
+        m1 <- matrix(input[i, 2:ncol(input)], nrow = dimmax, 
+            byrow = T)
+        m1 <- apply(m1, 2, as.numeric)
+        m1 <- t(apply(m1, 2, rev))
+        
+        image(1:dimmax, 1:dimmax, m1, col = grey.colors(255), 
+            xaxt = "n", yaxt = "n")
+        text(2, 20, col = "white", cex = 1.2, fashion_mnist[i, 
+            1])
+    }
+    
+}
+```
+
+```{r}
+# visualisasi
+vizTrain(fashion_mnist[1:25, ])
 ```
 
 2. Convert the data to matrix
+Data berisi nilai piksel yang disimpan dalam data.frame. Namun, kita harus mengubah data menjadi matriks sebelum kita membuat model. Ubah data ke dalam format matriks menggunakan fungsi data.matrix() dan simpan matriks `fashion_train` sebagai `train_m` dan matriks `fashion_test` sebagai `test_m`!
+
+```{r d22, exercise = TRUE, exercise.eval = TRUE, echo=FALSE}
+train_m <- data.matrix(fashion_mnist)
+test_m <- data.matrix(fashion_test)
+```
 
 3. Cross Validation
+lakukan cross validation menggunakan `initial_split()` dengan proporsi 80% data untuk data training.
 
-4. Prepare training and testing set (change to an array)
+```{r d23, exercise = TRUE, exercise.eval = TRUE, echo=FALSE}
+library(rsample)
+set.seed(123)
+mnist_split <- initial_split(data = fashion_mnist, prop = 0.8, strata = "label")
+mnist_train <- training(mnist_split)
+mnist_test <- testing(mnist_split)
+```
 
-5. Features scaling
+### Data Pre-processing
+1. Memisahkan prediktor dengan target variabel
+2. Mengubah format data menjadi array. Dari data.frame -> matrix -> array
+3. One-hot encoding apabila target variabel adalah kategori
+4. Scalling data/ Feature scaling
+
 
 ### Build Neural Network
 
