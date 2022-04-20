@@ -884,12 +884,21 @@ predict_class %>%
 
 #### Confusion Matrix (classification)
 
-```{r}
+```{r d32, exercise = TRUE, exercise.eval = TRUE, echo=FALSE}
+
+```
+
+```{r d32-solution}
 library(caret)
 confusionMatrix(data = as.factor(predict_class), reference = as.factor(test_y$label))
 ```
 
+
 ### Model Tuning
+
+```{r d33, exercise = TRUE, exercise.eval = TRUE, echo=FALSE}
+
+```
 
 Selamat, Anda telah menyelesaikan latihan dengan topik Neural Network. Semoga latihan ini berguna dan menambah pengetahuan Anda. Sampai jumpa di lain waktu.
 
