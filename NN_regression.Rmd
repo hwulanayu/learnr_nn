@@ -721,27 +721,168 @@ mnist_test <- testing(mnist_split)
 ```
 
 ### Data Pre-processing
+
 1. Memisahkan prediktor dengan target variabel
 2. Mengubah format data menjadi array. Dari data.frame -> matrix -> array
 3. One-hot encoding apabila target variabel adalah kategori
 4. Scalling data/ Feature scaling
 
+#### Memisahkan prediktor dengan target variabel, ubah data menjadi matrix, & scaling
+
+```{r d24, exercise = TRUE, exercise.eval = TRUE, echo=FALSE}
+
+```
+
+```{r d24-solution}
+# ambil prediktor dan lakukan scaling
+#prediktor
+train_x <- fashion_mnist_train %>% 
+  dplyr::select(-label) %>% 
+  as.matrix()/255
+
+test_x <- fashion_mnist_test %>% 
+  dplyr::select(-label) %>% 
+  as.matrix()/255
+
+#target
+train_y <- fashion_mnist_train %>% 
+  dplyr::select(label)
+
+test_y <- fashion_mnist_test %>% 
+  dplyr::select(label)
+```
+
+Dari proses di atas, coba jawab pertanyaan-pertanyaan di bawah ini:
+```{r q_nn_3, echo=FALSE}
+quiz(caption='Pre-processing',
+  question("",
+           type = "learnr_radio", correct = "Betul!",
+           incorrect = "Jawaban Anda masih kurang tepat", 
+           allow_retry = TRUE, random_answer_order = TRUE,
+           answer(""),
+           answer(""),
+           answer(""),
+           answer('', correct = T))
+)
+```
+
+#### Processing prediktor: mengubah matrix menjadi array
+
+```{r d25, exercise = TRUE, exercise.eval = TRUE, echo=FALSE}
+
+```
+
+```{r d25-solution}
+# prediktor
+train_x_keras <- train_x %>% 
+  array_reshape(dim = dim(train_x))
+
+test_x_keras <- test_x %>% 
+  array_reshape(dim = dim(test_x))
+```
+
+#### Processing target: One Hot Encoding
+
+```{r d26, exercise = TRUE, exercise.eval = TRUE, echo=FALSE}
+
+```
+
+```{r d26-solution}
+train_y_keras <- train_y %>% 
+  as.matrix() %>% 
+  to_categorical()
+```
 
 ### Build Neural Network
 
-1. Build a model base using keras_model_sequential()
+#### 1. Build a model base using keras_model_sequential()
 
-2. Building Architecture (define layers, neurons, and activation function)
+```{r}
+# keras initialization
+model <- keras_model_sequential()
+```
 
-3. Building Architecture (define cost function and optimizer)
+#### 2. Building Architecture (define layers, neurons, and activation function)
 
-4. Fitting model in the training set
+```{r d27, exercise = TRUE, exercise.eval = TRUE, echo=FALSE}
+
+```
+
+```{r d27-solution}
+tensorflow::tf$random$set_seed(123)
+
+model %>% 
+  layer_dense(input_shape = 784, 
+              units = 64, 
+              activation = "relu",
+              name = "hidden1") %>% 
+  layer_dense(units = 32, 
+              activation = "relu", 
+              name = "hidden2") %>% 
+  layer_dense(units = 16, 
+              activation = "relu", 
+              name = "hidden3") %>% 
+  layer_dense(units = 10, 
+              activation = "softmax",
+              name = "output")
+
+summary(model)
+```
+
+#### 3. Building Architecture (define cost function and optimizer)
+
+```{r d28, exercise = TRUE, exercise.eval = TRUE, echo=FALSE}
+
+```
+
+```{r d28-solution}
+ model %>% 
+  compile(loss = "categorical_crossentropy",
+          optimizer = optimizer_adam(learning_rate = 0.001), 
+          metric = "accuracy")
+```
+
+#### 4. Fitting model in the training set
+
+```{r d29, exercise = TRUE, exercise.eval = TRUE, echo=FALSE}
+
+```
+
+```{r d29-solution}
+history <- model %>% 
+           fit(train_x_keras,# predictor 
+               train_y_keras,# target
+               epoch = 15,
+               batch= 100)
+```
+
+Plotting Model:
+
+```{r d30, exercise = TRUE, exercise.eval = TRUE, echo=FALSE}
+
+```
+
+```{r d30-solution}
+plot(history)
+```
 
 ### Predicting on the testing set
 
+```{r d31, exercise = TRUE, exercise.eval = TRUE, echo=FALSE}
+
+```
+
+```{r d31-solution}
+# melakuan prediksi
+predict_class <- predict_classes(model, test_x_keras)
+# melihat hasil prediksi
+predict_class %>% 
+  head()
+```
+
 ### Evaluate
 
-Confusion Matrix (classification)
+#### Confusion Matrix (classification)
 
 ### Model Tuning
 
@@ -750,7 +891,5 @@ Selamat, Anda telah menyelesaikan latihan dengan topik Neural Network. Semoga la
 Team Algoritma,
 
 3/3/2022
-
-
 
 
