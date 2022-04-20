@@ -884,6 +884,11 @@ predict_class %>%
 
 #### Confusion Matrix (classification)
 
+```{r}
+library(caret)
+confusionMatrix(data = as.factor(predict_class), reference = as.factor(test_y$label))
+```
+
 ### Model Tuning
 
 Selamat, Anda telah menyelesaikan latihan dengan topik Neural Network. Semoga latihan ini berguna dan menambah pengetahuan Anda. Sampai jumpa di lain waktu.
