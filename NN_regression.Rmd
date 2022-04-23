@@ -190,7 +190,7 @@ quiz(caption='8',
 
 ## Case Regresi
 
-Pada latihan ini, kita akan menggunakan dataset Boston yang tersedia pada package MASS. Dataset Boston adalah kumpulan data tentang nilai perumahan di pinggiran kota Boston. 
+Pada latihan ini, kita akan menggunakan dataset Boston yang tersedia pada package [MASS](https://cran.r-project.org/web/packages/MASS/index.html). Dataset Boston berisi data perumahan di pinggiran kota Boston. 
 
 __Business question__: prediksi nilai median rumah yang ditempati pemilik (medv) menggunakan semua variabel yang tersedia.
 
@@ -201,26 +201,39 @@ data <- Boston
 ```
 
 
-
 ```{r}
 head(data)
 ```
 
 Deskripsi Data:
-* `CRIM` - per capita crime rate by town
-* `ZN` - proportion of residential land zoned for lots over 25,000 sq.ft.
-* `INDUS` - proportion of non-retail business acres per town.
-* `CHAS` - Charles River dummy variable (1 if tract bounds river; 0 otherwise)
-* `NOX` - nitric oxides concentration (parts per 10 million)
-* `RM` - average number of rooms per dwelling
-* `AGE` - proportion of owner-occupied units built prior to 1940
-* `DIS` - weighted distances to five Boston employment centres
-* `RAD` - index of accessibility to radial highways
-* `TAX` - full-value property-tax rate per $10,000
-* `PTRATIO` - pupil-teacher ratio by town
-* `B` - 1000(Bk - 0.63)^2 where Bk is the proportion of blacks by town
-* `LSTAT` - % lower status of the population
-* `MEDV` - Median value of owner-occupied homes in $1000's
+
+* `CRIM` - tingkat kejahatan per kapita berdasarkan kota
+
+* `ZN` - proporsi tanah perumahan yang dikategorikan untuk kavling dengan ukuran lebih dari 25.000 sq.ft.
+
+* `INDUS` - proporsi hektar bisnis non-ritel per kota
+
+* `CHAS` - variabel dummy Sungai Charles (1 jika saluran membatasi sungai; 0 sebaliknya)
+
+* `NOX` - konsentrasi oksida nitrat (per 10 juta tiap bagiannya)
+
+* `RM` - rata-rata jumlah kamar per hunian
+
+* `AGE` - proporsi unit yang ditempati pemilik yang dibangun sebelum 1940
+
+* `DIS` - jarak tertimbang (weighted) ke lima pusat kerja Boston
+
+* `RAD` - indeks aksesibilitas ke jalan raya radial
+
+* `TAX` - tarif pajak properti bernilai penuh per $10.000
+
+* `PTRATIO` - rasio murid-guru berdasarkan kota
+
+* `B` - 1000(Bk - 0,63)^2 di mana Bk adalah proporsi orang kulit hitam per kota
+
+* `LSTAT` - % populasi yang memiliki [status rendah](https://opendata.stackexchange.com/questions/15740/what-does-lower-status-mean-in-boston-house-prices-dataset)
+
+* `MEDV` - harga median rumah yang ditempati pemilik dengan kelipatan $1000's
 
 
 ### Exploratory Data Analysis
@@ -274,14 +287,14 @@ test <- testing(index)
 
 ```{r letter-a, echo=FALSE}
 quiz(
-  question("Selain cross validation, berikut ini yang termasuk dalam data preprocessing adalah...",
-           type = "learnr_checkbox", correct = "Betul",
+  question("Selain cross validation, proses initermasuk dalam data preprocessing, KECUALI...",
+           type = "learnr_radio", correct = "Betul",
            incorrect = "Jawaban Anda masih kurang tepat", 
            allow_retry = TRUE, random_answer_order = FALSE,
-           answer("Normalization", correct = T),
-           answer("Scaling", correct = TRUE),
-           answer("Standardization", correct = T),
-           answer('Confusion matrix'))
+           answer("Normalization"),
+           answer("Scaling"),
+           answer("Standardization"),
+           answer('Confusion matrix',correct = T))
 )
 ```
 
@@ -411,7 +424,7 @@ MSE.nn <- sum((test.r - pr.nn_)^2) / nrow(test)
 
 ## Case Klasifikasi
 
-Pada case klasifikasi ini, kita akan menggunakan dataset __Wisconsin Breast Cancer__.  Dataset diambil dari (UCI Machine Learning Repository)[https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+(Original)]
+Pada case klasifikasi ini, kita akan menggunakan dataset __Wisconsin Breast Cancer__.  Dataset diambil dari [UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+(Original))
 
 __Business question__: Prediksi apakah kanker termasuk kategori ganas (malignant) atau jinak (benign) dari rincian biopsi.
 
@@ -427,17 +440,28 @@ head(BreastCancer)
 ```
 
 Deskripsi dan range data:
+
 * `Id`: Sample code number (id number)
-* `Cl.thickness`: Clump Thickness (1 - 10)
-* `Cell.size`: Uniformity of Cell Size (1 - 10)
-* `Cell.shape`: Uniformity of Cell Shape (1 - 10)
-* `Marg.adhesion`: Marginal Adhesion (1 - 10)
-* `Epith.c.size`: Single Epithelial Cell Size (1 - 10)
-* `Bare.nuclei`: Bare Nuclei (1 - 10)
+
+* `Cl.thickness`: ketebalan gumpalan/clump (1 - 10)
+
+* `Cell.size`: keseragaman ukuran sel (1 - 10)
+
+* `Cell.shape`: keseragaman bentuk sel (1 - 10)
+
+* `Marg.adhesion`: adhesi marginal (1 - 10)
+
+* `Epith.c.size`: ukuran sel epitel tunggal (1 - 10)
+
+* `Bare.nuclei`: Nuclei/inti telanjang (1 - 10)
+
 * `Bl.cromatin`: Bland Chromatin (1 - 10)
-* `Normal.nucleoli`: Normal Nucleoli (1 - 10)
-* `Mitoses`: Mitoses (1 - 10)
-* `Class`: Class (benign/malignant)
+
+* `Normal.nucleoli`: Nukleolus Normal (1 - 10)
+
+* `Mitoses`: Mitosis (1 - 10)
+
+* `Class`: Class (benign/jinak atau malignant/ganas)
 
 
 ### Exploratory Data Analysis
