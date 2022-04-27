@@ -285,6 +285,15 @@ train <- training(index)
 test <- testing(index)
 ```
 
+```{r split, echo=FALSE}
+set.seed(13)
+
+index <- initial_split(data = data, prop = 0.8)
+
+train <- training(index)
+test <- testing(index)
+```
+
 ```{r letter-a, echo=FALSE}
 quiz(
   question("Selain cross validation, proses initermasuk dalam data preprocessing, KECUALI...",
@@ -300,7 +309,7 @@ quiz(
 
 Gunakan `model.matrix()` untuk data abalone (variable prediktor + target) dan simpan ke dalam `abalone_m`
 
-```{r d4, exercise = TRUE, exercise.eval = TRUE, exercise.setup = TRUE}
+```{r d4, exercise = TRUE, exercise.eval = TRUE, exercise.setup = 'split'}
 
 ```
 
@@ -315,11 +324,20 @@ head(train_m)
 
 Fungsi `neuralnet()` hanya menerima formula lengkap; tidak menerima formula `target ~ .`, sehingga kita harus siapkan secara manual untuk formulanya. Simpan model pada variabel `nn`.
 
-```{r d5, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
+```{r d5, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE, exercise.setup = 'split'}
 
 ```
 
 ```{r d5-solution}
+# Build Neural Network
+nn <- neuralnet(medv ~ crim + zn + indus + chas + nox 
+                + rm + age + dis + rad + tax + 
+                ptratio + black + lstat, 
+                data = train, hidden = c(5, 3), 
+                linear.output = TRUE)
+```
+
+```{r reg-nn, echo=FALSE}
 # Build Neural Network
 nn <- neuralnet(medv ~ crim + zn + indus + chas + nox 
                 + rm + age + dis + rad + tax + 
@@ -379,7 +397,7 @@ question_parsons(
 
 plot model `nn`:
 
-```{r d6, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
+```{r d6, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE, exercise.setup = "reg-nn"}
 
 ```
 
@@ -392,7 +410,7 @@ plot(nn)
 
 Untuk prediksi kita dapat gunakan `compute()`
 
-```{r d7, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
+```{r d7, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE, exercise.setup = c("reg-nn", "split")}
 
 ```
 
@@ -491,6 +509,14 @@ BreastCancer <- BreastCancer %>%
 head(BreastCancer)
 ```
 
+```{r d9-data, echo=FALSE}
+# koreksi tipe data
+BreastCancer <- BreastCancer %>% 
+  mutate_if(is.character, as.factor) %>% 
+  mutate_all(as.numeric)
+str(BreastCancer)
+```
+
 Apakah terdapat missing value?
 
 ```{r d10, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
@@ -519,6 +545,11 @@ Take out variabel yang tidak dibutuhkan dalam model:
 
 ```
 
+```{r data_bc1, echo=FALSE}
+BreastCancer <- BreastCancer %>% 
+  dplyr::select(-Id)
+```
+
 Bagi data menjadi data train dan data test dengan 80% data sebagai data train. simpan data train pada variabel `train` dan data test pada variabel `test`
 
 ```{r d12, exercise = TRUE, exercise.eval = TRUE}
@@ -526,6 +557,15 @@ set.seed(13)
 ```
 
 ```{r d12-solution}
+set.seed(13)
+
+index <- initial_split(data = BreastCancer, prop = 0.8)
+
+train_bc <- training(index)
+test_bc <- testing(index)
+```
+
+```{r split-bc, echo=FALSE}
 set.seed(13)
 
 index <- initial_split(data = BreastCancer, prop = 0.8)
@@ -563,14 +603,14 @@ colnames(BreastCancer)
 
 c. Kemudian kita buat formula untuk dimasukkan ke dalam model
 
-```{r d15, exercise = TRUE, exercise.eval = TRUE, exercise.setup = TRUE}
+```{r d15, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "data_bc1"}
 
 ```
 
 ```{r d15-solution}
 #memilih prediktor
 prediktor <- BreastCancer %>% 
-            select(Class) %>% 
+            dplyr::select(-Class) %>% 
             colnames()
 
 #membuat formula
@@ -581,11 +621,24 @@ formula_m <- paste("Class ~", prediktor_m) %>%
 formula_m
 ```
 
+```{r formula_m, echo=FALSE}
+#memilih prediktor
+prediktor <- BreastCancer %>% 
+            dplyr::select(-Class) %>% 
+            colnames()
+
+#membuat formula
+prediktor_m <- paste(prediktor, collapse = "+")
+
+formula_m <- paste("Class~", prediktor_m) %>% 
+            as.formula()
+```
+
 **2. Pembuatan model menggunakan `neuralnet()`**
 
 #Build Neural Network
 
-```{r d16, exercise = TRUE, exercise.eval = TRUE}
+```{r d16, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "formula_m"}
 
 ```
 
@@ -638,6 +691,7 @@ print(cm)
 ## Neural Network dengan Keras
 
 ### Data Preparation
+
 1. Load dataset
 
 ```{r}
@@ -728,7 +782,7 @@ vizTrain(fashion_mnist[1:25, ])
 2. Convert the data to matrix
 Data berisi nilai piksel yang disimpan dalam data.frame. Namun, kita harus mengubah data menjadi matriks sebelum kita membuat model. Ubah data ke dalam format matriks menggunakan fungsi data.matrix() dan simpan matriks `fashion_train` sebagai `train_m` dan matriks `fashion_test` sebagai `test_m`!
 
-```{r d22, exercise = TRUE, exercise.eval = TRUE, echo=FALSE}
+```{r d22, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup='fashion-data'}
 train_m <- data.matrix(fashion_mnist)
 test_m <- data.matrix(fashion_test)
 ```
@@ -736,7 +790,7 @@ test_m <- data.matrix(fashion_test)
 3. Cross Validation
 lakukan cross validation menggunakan `initial_split()` dengan proporsi 80% data untuk data training.
 
-```{r d23, exercise = TRUE, exercise.eval = TRUE, echo=FALSE}
+```{r d23, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup='fashion-data'}
 library(rsample)
 set.seed(123)
 mnist_split <- initial_split(data = fashion_mnist, prop = 0.8, strata = "label")
