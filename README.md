@@ -1,0 +1,1 @@
+link deployment (without python reticulate): https://hwulanayu.shinyapps.io/AlgLearnRNN
