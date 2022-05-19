@@ -22,12 +22,12 @@ runtime: shiny_prerendered
 ```{r setup, include=FALSE}
 library(learnr) # user interface for coding exercise
 knitr::opts_chunk$set(
-  echo = TRUE,
-  message = FALSE,
-  warning = FALSE,
-  fig.align = "center",
-  comment = "#>")
-
+	echo = TRUE,
+	fig.align = "center",
+	message = FALSE,
+	warning = FALSE,
+	comment = "#>"
+)
 options(scipen = 99)
 
 # load library
@@ -194,14 +194,37 @@ Pada latihan ini, kita akan menggunakan dataset Boston yang tersedia pada packag
 
 __Business question__: prediksi nilai median rumah yang ditempati pemilik (medv) menggunakan semua variabel yang tersedia.
 
-```{r data, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+```{r data_regresi, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
 # Read Data
 set.seed(13)
 data <- Boston
+
+# koreksi tipe data
+data <- data %>% 
+  mutate_if(is.character, as.factor)
+
+index <- initial_split(data = data, prop = 0.8)
+train <- training(index)
+test <- testing(index)
+
+train_m <- model.matrix(~., data = train) %>% 
+          as.data.frame()
+
+nn <- neuralnet(medv ~ crim + zn + indus + chas + nox 
+                + rm + age + dis + rad + tax + 
+                ptratio + black + lstat, 
+                data = train, hidden = c(5, 3), 
+                linear.output = TRUE)
+
+pr.nn <- neuralnet::compute(nn, test[,1:13])
+
+pr.nn_ <- pr.nn$net.result * (max(data$medv) - min(data$medv)) + min(data$medv)
+test.r <- (test$medv) * (max(data$medv) - min(data$medv)) +  min(data$medv)
+MSE.nn <- sum((test.r - pr.nn_)^2) / nrow(test)
 ```
 
 
-```{r}
+```{r head_data}
 head(data)
 ```
 
@@ -240,13 +263,13 @@ Deskripsi Data:
 
 Cek Dimensi Data
 
-```{r}
+```{r dim_data}
 dim(data)
 ```
 
 Adakah tipe data yang belum sesuai?
 
-```{r d1, exercise = TRUE, exercise.eval = TRUE}
+```{r d1, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "data_regresi"}
 
 ```
 
@@ -259,7 +282,7 @@ head(data)
 
 Apakah terdapat missing value?
 
-```{r d2, exercise = TRUE, exercise.eval = TRUE}
+```{r d2, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "data_regresi"}
 
 ```
 
@@ -271,7 +294,7 @@ anyNA(data)
 
 Bagi data menjadi data train dan data test dengan 80% data sebagai data train. simpan data train pada variabel `train` dan data test pada variabel `test`
 
-```{r d3, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
+```{r d3, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE, exercise.setup = "data_regresi"}
 set.seed(13)
 
 ```
@@ -298,9 +321,9 @@ quiz(
 )
 ```
 
-Gunakan `model.matrix()` untuk data abalone (variable prediktor + target) dan simpan ke dalam `abalone_m`
+Gunakan `model.matrix()` untuk data train dan simpan ke dalam `train_m`.
 
-```{r d4, exercise = TRUE, exercise.eval = TRUE, exercise.setup = TRUE}
+```{r d4, exercise = TRUE, exercise.eval = TRUE, exercise.setup = TRUE, exercise.setup = "data_regresi"}
 
 ```
 
@@ -315,7 +338,7 @@ head(train_m)
 
 Fungsi `neuralnet()` hanya menerima formula lengkap; tidak menerima formula `target ~ .`, sehingga kita harus siapkan secara manual untuk formulanya. Simpan model pada variabel `nn`.
 
-```{r d5, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
+```{r d5, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE, exercise.setup = "data_regresi"}
 
 ```
 
@@ -379,7 +402,7 @@ question_parsons(
 
 plot model `nn`:
 
-```{r d6, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
+```{r d6, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE, exercise.setup = "data_regresi"}
 
 ```
 
@@ -392,7 +415,7 @@ plot(nn)
 
 Untuk prediksi kita dapat gunakan `compute()`
 
-```{r d7, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
+```{r d7, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE, exercise.setup = "data_regresi"}
 
 ```
 
@@ -408,7 +431,7 @@ head(pr.nn$net.result)
 
 Evaluasi model dengan metrik mean square error
 
-```{r d8, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
+```{r d8, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE, exercise.setup = "data_regresi"}
 
 ```
 
@@ -424,180 +447,110 @@ MSE.nn <- sum((test.r - pr.nn_)^2) / nrow(test)
 
 ## Case Klasifikasi
 
-Pada case klasifikasi ini, kita akan menggunakan dataset __Wisconsin Breast Cancer__.  Dataset diambil dari [UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+(Original))
+Pada case klasifikasi ini, kita akan menggunakan dataset Iris.
 
-__Business question__: Prediksi apakah kanker termasuk kategori ganas (malignant) atau jinak (benign) dari rincian biopsi.
+__Problem question__: Prediksi species bunga Iris dari rincian ukuran sepal dan petal.
 
-```{r data_bc, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+```{r data_klasifikasi, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
 # Read Data
 set.seed(13)
 
-data(BreastCancer)
+data("iris")
+
+index <- initial_split(data = iris, prop = 0.8)
+train_bc <- training(index)
+test_bc <- testing(index)
+
+xtest = test_bc[, -5]
+ytest = test_bc[, 5]
+
+nn_bc <- neuralnet(Species~., train_bc, hidden = c(4,3), linear.output = FALSE)
+
+ypred <- neuralnet::compute(nn_bc, xtest)
+yhat = ypred$net.result
+
+yhat=data.frame("yhat"=ifelse(max.col(yhat[ ,1:3])==1, "setosa",
+                       ifelse(max.col(yhat[ ,1:3])==2, "versicolor", "virginica")))
+
+cm = confusionMatrix(as.factor(ytest), as.factor(yhat$yhat))
 ```
 
-```{r}
-head(BreastCancer)
+```{r head_data_klasifikasi}
+head(iris)
 ```
 
 Deskripsi dan range data:
-
-* `Id`: Sample code number (id number)
-
-* `Cl.thickness`: ketebalan gumpalan/clump (1 - 10)
-
-* `Cell.size`: keseragaman ukuran sel (1 - 10)
-
-* `Cell.shape`: keseragaman bentuk sel (1 - 10)
-
-* `Marg.adhesion`: adhesi marginal (1 - 10)
-
-* `Epith.c.size`: ukuran sel epitel tunggal (1 - 10)
-
-* `Bare.nuclei`: Nuclei/inti telanjang (1 - 10)
-
-* `Bl.cromatin`: Bland Chromatin (1 - 10)
-
-* `Normal.nucleoli`: Nukleolus Normal (1 - 10)
-
-* `Mitoses`: Mitosis (1 - 10)
-
-* `Class`: Class (benign/jinak atau malignant/ganas)
 
 
 ### Exploratory Data Analysis
 
 Cek label klasifikasi
 
-```{r}
-levels(BreastCancer$Class)
+```{r label_klasifikasi}
+levels(iris$Species)
 ```
 
 Cek Dimensi Data
 
-```{r}
-dim(BreastCancer)
+```{r dim_klasifikasi}
+dim(iris)
 ```
 
 Adakah tipe data yang belum sesuai?
 
-```{r d9, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
+```{r d9, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE, exercise.setup = "data_klasifikasi"}
 
-```
-
-```{r d9-solution}
-# koreksi tipe data
-BreastCancer <- BreastCancer %>% 
-  mutate_if(is.character, as.factor)
-head(BreastCancer)
 ```
 
 Apakah terdapat missing value?
 
-```{r d10, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
+```{r d10, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE,exercise.setup = "data_klasifikasi"}
 
 ```
 
 ```{r d10-solution}
 # cek missing value
-anyNA(BreastCancer)
+anyNA(iris)
 ```
 
 Apakah proporsi kelas target seimbang?
 
-```{r}
-# cek class imbalance
- 
+```{r d11, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup = "data_klasifikasi"}
+table(iris$Species)
 ```
 
 ### Data Preprocessing
 
-Take out variabel yang tidak dibutuhkan dalam model:
-
-* `Id`: Sample code number (id number)
-
-```{r d11, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
-
-```
-
 Bagi data menjadi data train dan data test dengan 80% data sebagai data train. simpan data train pada variabel `train` dan data test pada variabel `test`
 
-```{r d12, exercise = TRUE, exercise.eval = TRUE}
+```{r d12, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "data_klasifikasi"}
 set.seed(13)
 ```
 
 ```{r d12-solution}
 set.seed(13)
 
-index <- initial_split(data = BreastCancer, prop = 0.8)
+index <- initial_split(data = iris, prop = 0.8)
 
 train_bc <- training(index)
 test_bc <- testing(index)
-```
-
-### Build Model
-
-Fungsi `neuralnet()` hanya menerima formula lengkap; tidak menerima formula `target ~ .`, sehingga kita harus siapkan secara manual untuk formulanya. Simpan model pada variabel `nn`.
-
-**1. Pembuatan formula**
-
-a. Ambil nama kolom data `BreastCancer`
-
-```{r d13, exercise = TRUE, exercise.eval = TRUE, exercise.setup = TRUE}
-
-```
-
-```{r d13-solution}
-colnames(BreastCancer)
-```
-
-b. Menghilangkan "." pada kolom tertentu menggunakan `gsub()`. Hint: tanda titik merupakan _special character_ sehingga harus di-'escape'. 
-
-```{r d14, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "abalone"}
-
-```
-
-```{r d14-solution}
-colnames(BreastCancer) <- gsub(pattern = '\\.', replacement = '', colnames(BreastCancer))
-colnames(BreastCancer)
-```
-
-c. Kemudian kita buat formula untuk dimasukkan ke dalam model
-
-```{r d15, exercise = TRUE, exercise.eval = TRUE, exercise.setup = TRUE}
-
-```
-
-```{r d15-solution}
-#memilih prediktor
-prediktor <- BreastCancer %>% 
-            select(Class) %>% 
-            colnames()
-
-#membuat formula
-prediktor_m <- paste(prediktor, collapse = "+")
-
-formula_m <- paste("Class ~", prediktor_m) %>% 
-            as.formula()
-formula_m
 ```
 
 **2. Pembuatan model menggunakan `neuralnet()`**
 
 #Build Neural Network
 
-```{r d16, exercise = TRUE, exercise.eval = TRUE}
+```{r d16, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "data_klasifikasi"}
 
 ```
 
 ```{r d16-solution}
-nn_bc <- neuralnet(formula = formula_m, 
-                data = BreastCancer, hidden = c(4, 2), 
-                linear.output = FALSE)
+nn_bc <- neuralnet(Species~., train_bc, hidden = c(4,3), linear.output = FALSE)
 ```
 
 plot model `nn_bc`:
 
-```{r d17, exercise = TRUE, exercise.eval = TRUE}
+```{r d17, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "data_klasifikasi"}
 
 ```
 
@@ -608,54 +561,148 @@ plot(nn_bc)
 
 ### Predict 
 
-Untuk prediksi kita dapat gunakan `compute()`
+Untuk prediksi kita dapat gunakan `compute()` dan simpan dalam variabel `ypred`. Inspect hasil prediksi dengan melihat nilai `net.result`!     
 
-```{r d18, exercise = TRUE, exercise.eval = TRUE}
+```{r d18, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "data_klasifikasi"}
 
 ```
 
 ```{r d18-solution}
 # Predict on test data
-pr.nn <- neuralnet::compute(nn_bc, test_bc[,1:13])
+ypred <- neuralnet::compute(nn_bc, xtest)
 
-inspect
-head(pr.nn$net.result)
+#inspect
+head(ypred$net.result)
 ```
+
+Hasil prediksi menunjukkan probabilitas masing-masing kelas. Kita perlu mengekstrak kelas dengan nilai prediksi tertinggi sebagai hasil prediksi.
+  
+```{r ekstrak_probabilitas}
+yhat=data.frame("yhat"=ifelse(max.col(ypred$net.result[ ,1:3])==1, "setosa",
+                       ifelse(max.col(ypred$net.result[ ,1:3])==2, "versicolor", "virginica")))
+```
+
 
 ### Evaluation
 
 Evaluasi model dengan melihat confusion matrix yang terbentuk
 
-```{r d19, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE}
+```{r d19, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE, exercise.setup = "data_klasifikasi"}
 
 ```
 
 ```{r d19-solution}
-cm=confusionMatrix(as.factor(ytest), pr.nn$net.result)
-print(cm) 
+cm = confusionMatrix(as.factor(ytest), as.factor(yhat$yhat))
+cm 
 ```
 
 ## Neural Network dengan Keras
 
+```{r data_keras, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+# read fashion mnist train dan test data
+fashion_mnist <- read.csv(here::here("data_input/fashionmnist/train.csv"))
+fashion_test <- read_csv(here::here("data_input/fashionmnist/test.csv"))
+
+vizTrain <- function(input) {
+    
+    dimmax <- sqrt(ncol(fashion_mnist[, -1]))
+    
+    dimn <- ceiling(sqrt(nrow(input)))
+    par(mfrow = c(dimn, dimn), mar = c(0.1, 0.1, 0.1, 
+        0.1))
+    
+    for (i in 1:nrow(input)) {
+        m1 <- matrix(input[i, 2:ncol(input)], nrow = dimmax, 
+            byrow = T)
+        m1 <- apply(m1, 2, as.numeric)
+        m1 <- t(apply(m1, 2, rev))
+        
+        image(1:dimmax, 1:dimmax, m1, col = grey.colors(255), 
+            xaxt = "n", yaxt = "n")
+        text(2, 20, col = "white", cex = 1.2, fashion_mnist[i, 
+            1])
+    }
+    
+}
+
+train_m <- data.matrix(fashion_mnist)
+test_m <- data.matrix(fashion_test)
+
+set.seed(123)
+fashion_mnist_split <- initial_split(data = fashion_mnist, prop = 0.8, strata = "label")
+fashion_mnist_train <- training(fashion_mnist_split)
+fashion_mnist_test <- testing(fashion_mnist_split)
+
+# ambil prediktor dan lakukan scaling
+#prediktor
+train_x <- fashion_mnist_train %>% 
+  dplyr::select(-label) %>% 
+  as.matrix()/255
+test_x <- fashion_mnist_test %>% 
+  dplyr::select(-label) %>% 
+  as.matrix()/255
+#target
+train_y <- fashion_mnist_train %>% 
+  dplyr::select(label)
+test_y <- fashion_mnist_test %>% 
+  dplyr::select(label)
+
+# prediktor
+train_x_keras <- train_x %>% 
+  array_reshape(dim = dim(train_x))
+test_x_keras <- test_x %>% 
+  array_reshape(dim = dim(test_x))
+
+train_y_keras <- train_y %>% 
+  as.matrix() %>% 
+  to_categorical()
+
+model <- keras_model_sequential()
+
+tensorflow::tf$random$set_seed(123)
+model %>% 
+  layer_dense(input_shape = 784, 
+              units = 64, 
+              activation = "relu",
+              name = "hidden1") %>% 
+  layer_dense(units = 32, 
+              activation = "relu", 
+              name = "hidden2") %>% 
+  layer_dense(units = 16, 
+              activation = "relu", 
+              name = "hidden3") %>% 
+  layer_dense(units = 10, 
+              activation = "softmax",
+              name = "output")
+ 
+ #predict_class <- predict_classes(model, test_x_keras)
+```
+
 ### Data Preparation
 1. Load dataset
 
-```{r}
+```{r load_dataset}
 # read fashion mnist train dan test data
-fashion_mnist <- read.csv("data_input/fashionmnist/train.csv")
-fashion_test <- read_csv("data_input/fashionmnist/test.csv")
 head(fashion_mnist)
 ```
 
 ### Exploratory Data Analysis
 1. Cek dimensi data
 
-```{r d20, exercise = TRUE, exercise.eval = TRUE, echo=FALSE}
+```{r d20, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup = "data_keras", exercise.timelimit= 60}
+
+```
+
+```{r d20-solution}
 dim(fashion_mnist)
 ```
 
 Inspect 6 data awal
-```{r d21, exercise = TRUE, exercise.eval = TRUE, echo=FALSE}
+```{r d21, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup = "data_keras", exercise.timelimit= 60}
+
+```
+
+```{r d21-solution}
 fashion_mnist$label %>%
   table() %>%
   prop.table()
@@ -696,31 +743,7 @@ quiz(caption='EDA',
 
 2. Visualisasi data
 
-```{r include=FALSE}
-vizTrain <- function(input) {
-    
-    dimmax <- sqrt(ncol(fashion_mnist[, -1]))
-    
-    dimn <- ceiling(sqrt(nrow(input)))
-    par(mfrow = c(dimn, dimn), mar = c(0.1, 0.1, 0.1, 
-        0.1))
-    
-    for (i in 1:nrow(input)) {
-        m1 <- matrix(input[i, 2:ncol(input)], nrow = dimmax, 
-            byrow = T)
-        m1 <- apply(m1, 2, as.numeric)
-        m1 <- t(apply(m1, 2, rev))
-        
-        image(1:dimmax, 1:dimmax, m1, col = grey.colors(255), 
-            xaxt = "n", yaxt = "n")
-        text(2, 20, col = "white", cex = 1.2, fashion_mnist[i, 
-            1])
-    }
-    
-}
-```
-
-```{r}
+```{r visualisasi}
 # visualisasi
 vizTrain(fashion_mnist[1:25, ])
 ```
@@ -728,7 +751,11 @@ vizTrain(fashion_mnist[1:25, ])
 2. Convert the data to matrix
 Data berisi nilai piksel yang disimpan dalam data.frame. Namun, kita harus mengubah data menjadi matriks sebelum kita membuat model. Ubah data ke dalam format matriks menggunakan fungsi data.matrix() dan simpan matriks `fashion_train` sebagai `train_m` dan matriks `fashion_test` sebagai `test_m`!
 
-```{r d22, exercise = TRUE, exercise.eval = TRUE, echo=FALSE}
+```{r d22, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup = "data_keras", exercise.timelimit= 60}
+
+```
+
+```{r d22-solution}
 train_m <- data.matrix(fashion_mnist)
 test_m <- data.matrix(fashion_test)
 ```
@@ -736,12 +763,16 @@ test_m <- data.matrix(fashion_test)
 3. Cross Validation
 lakukan cross validation menggunakan `initial_split()` dengan proporsi 80% data untuk data training.
 
-```{r d23, exercise = TRUE, exercise.eval = TRUE, echo=FALSE}
-library(rsample)
+```{r d23, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup = "data_keras", exercise.timelimit= 60}
 set.seed(123)
-mnist_split <- initial_split(data = fashion_mnist, prop = 0.8, strata = "label")
-mnist_train <- training(mnist_split)
-mnist_test <- testing(mnist_split)
+
+```
+
+```{r d23-solution}
+set.seed(123)
+fashion_mnist_split <- initial_split(data = fashion_mnist, prop = 0.8, strata = "label")
+fashion_mnist_train <- training(fashion_mnist_split)
+fashion_mnist_test <- testing(fashion_mnist_split)
 ```
 
 ### Data Pre-processing
@@ -753,7 +784,7 @@ mnist_test <- testing(mnist_split)
 
 #### Memisahkan prediktor dengan target variabel, ubah data menjadi matrix, & scaling
 
-```{r d24, exercise = TRUE, exercise.eval = TRUE, echo=FALSE}
+```{r d24, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup = "data_keras", exercise.timelimit= 60}
 
 ```
 
@@ -777,22 +808,10 @@ test_y <- fashion_mnist_test %>%
 ```
 
 Dari proses di atas, coba jawab pertanyaan-pertanyaan di bawah ini:
-```{r q_nn_3, echo=FALSE}
-quiz(caption='Pre-processing',
-  question("",
-           type = "learnr_radio", correct = "Betul!",
-           incorrect = "Jawaban Anda masih kurang tepat", 
-           allow_retry = TRUE, random_answer_order = TRUE,
-           answer(""),
-           answer(""),
-           answer(""),
-           answer('', correct = T))
-)
-```
 
 #### Processing prediktor: mengubah matrix menjadi array
 
-```{r d25, exercise = TRUE, exercise.eval = TRUE, echo=FALSE}
+```{r d25, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup = "data_keras", exercise.timelimit= 60}
 
 ```
 
@@ -807,7 +826,7 @@ test_x_keras <- test_x %>%
 
 #### Processing target: One Hot Encoding
 
-```{r d26, exercise = TRUE, exercise.eval = TRUE, echo=FALSE}
+```{r d26, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup = "data_keras", exercise.timelimit= 60}
 
 ```
 
@@ -821,14 +840,14 @@ train_y_keras <- train_y %>%
 
 #### 1. Build a model base using keras_model_sequential()
 
-```{r}
+```{r model_keras}
 # keras initialization
 model <- keras_model_sequential()
 ```
 
 #### 2. Building Architecture (define layers, neurons, and activation function)
 
-```{r d27, exercise = TRUE, exercise.eval = TRUE, echo=FALSE}
+```{r d27, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup = "data_keras", exercise.timelimit= 60}
 
 ```
 
@@ -855,7 +874,7 @@ summary(model)
 
 #### 3. Building Architecture (define cost function and optimizer)
 
-```{r d28, exercise = TRUE, exercise.eval = TRUE, echo=FALSE}
+```{r d28, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup = "data_keras", exercise.timelimit= 60}
 
 ```
 
@@ -868,7 +887,8 @@ summary(model)
 
 #### 4. Fitting model in the training set
 
-```{r d29, exercise = TRUE, exercise.eval = TRUE, echo=FALSE}
+
+```{r d29, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup = "data_keras", exercise.timelimit= 60}
 
 ```
 
@@ -882,7 +902,7 @@ history <- model %>%
 
 Plotting Model:
 
-```{r d30, exercise = TRUE, exercise.eval = TRUE, echo=FALSE}
+```{r d30, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup = "data_keras", exercise.timelimit= 60}
 
 ```
 
@@ -892,7 +912,7 @@ plot(history)
 
 ### Predicting on the testing set
 
-```{r d31, exercise = TRUE, exercise.eval = TRUE, echo=FALSE}
+```{r d31, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup = "data_keras", exercise.timelimit= 60}
 
 ```
 
@@ -908,19 +928,18 @@ predict_class %>%
 
 #### Confusion Matrix (classification)
 
-```{r d32, exercise = TRUE, exercise.eval = TRUE, echo=FALSE}
+```{r d32, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup = "data_keras", exercise.timelimit= 60}
 
 ```
 
 ```{r d32-solution}
-library(caret)
 confusionMatrix(data = as.factor(predict_class), reference = as.factor(test_y$label))
 ```
 
 
 ### Model Tuning
 
-```{r d33, exercise = TRUE, exercise.eval = TRUE, echo=FALSE}
+```{r d33, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup = "data_keras", exercise.timelimit= 60}
 
 ```
 
