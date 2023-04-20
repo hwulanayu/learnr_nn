@@ -1,20 +1,10 @@
 ---
 title: "Neural Network"
 author: "Team Algoritma"
-date: "2/21/2022"
 output:
   learnr::tutorial:
     progressive: true
     allow_skip: true
-  fig.show : 'asis'
-runtime: shiny_prerendered
----
----
-title: "Neural Network"
-author: "Team Algoritma"
-date: "2/21/2022"
-output:
-  learnr::tutorial:
   fig.show : 'asis'
 runtime: shiny_prerendered
 ---
@@ -41,42 +31,33 @@ library(mlbench)
 library(readr)
 library(keras)
 library(dplyr)
-#library(devtools)
-library(keras) 
+# library(devtools)
+# library(keras) 
+library(graphics)
 ```
 
+
+## Background
+
+Interactive tutorial ini akan membahas mengenai Neural Network dengan R. Objektif utama dari interactive tutorial ini adalah sebagai alat pendamping untuk membantu partisipan mengejar materi di kelas. Anda diharapkan sudah mempelajari coursebook Neural Network yang sudah disediakan [Algoritma](https://algorit.ma).  
 
 ## Mengenal Neural Network
 
-Hi _Future Data Scientist_! Course ini akan membahas mengenai *Neural Network* dengan R. Neural network atau Artificial Neural Network (ANN) adalah metode machine learning yang terinspirasi dari cara kerja otak manusia, terutama pada bagian __arsitektur jaringan syaraf (neuron)__ dan __proses pembelajarannya__. Pada bagian ini, terdapat beberapa pertanyaan me-refresh kembali pengetahuan Anda tentang Neural Network.
+Neural Network atau [Artificial Neural Network (ANN)](https://en.wikipedia.org/wiki/Artificial_neural_network) adalah metode machine learning yang terinspirasi dari cara kerja otak manusia, terutama pada bagian __arsitektur jaringan syaraf__ dan __proses pembelajarannya__. Pada bagian ini, terdapat beberapa pertanyaan yang menguji kembali pepengetahuan Anda tentang Neural Network.
 
-```{r q1, echo=FALSE}
-quiz(caption='1',
-  question("Pernyataan di bawah ini yang benar mengenai Neural Network, KECUALI…",
-           type = "learnr_radio", correct = "Betul!",
-           incorrect = "Jawaban Anda masih kurang tepat", 
-           allow_retry = TRUE, random_answer_order = TRUE,
-           answer("backpropagation dihitung menggunakan metode chain rule"),
-           answer("semakin banyak jumlah epoch, semakin tinggi akurasi model", correct = T),
-           answer("jumlah neuron pada hidden layer ditentukan oleh user"),
-           answer('dataset dengan kelas/label imbalance dapat menggunakan recall sebagai metrik evaluasi'))
-)
-```
-
-2. Urutkan term dengan definisi di bawah ini! 
+__Urutkan term dengan definisi di bawah ini!__
 
 *Hint: beberapa terms tidak ada pada definisi berikut. Pilih term - term yang tepat!*
 
-a. Informasi yang dibawa oleh setiap neuron, sama seperti slope pada regresi. 
+a. Informasi yang dibawa oleh setiap neuron, sama seperti slope pada regresi.
 b. nilai intercept
 c. Fungsi untuk standarisasi hasil perhitungan
-d. Proses membawa data input melewati tiap neuron pada hidden layer sampai pada output layer yang nantinya akan dihitung errornya
+d. Proses membawa data input melewati tiap neuron pada hidden layer sampai pada output layer yang menghasilkan prediksi
 e. Proses membawa error yang didapat dari forward propagation untuk mengupdate setiap weight dan bias.
-f. Error. Selisih antara hasil prediksi dan data aktual.
-g. Banyaknya proses iterasi (1x forward dan 1x backward) dalam training model.
+f. Fungsi untuk menghitung selisih antara hasil prediksi dan data aktual.
+g. Banyaknya proses iterasi (1x forward dan 1x backward) dalam keseluruhan data training model.
 
 ```{r matching_terms, echo = FALSE}
-
 question_parsons(caption='2',
   initial = c(
     'backpropogation',
@@ -89,7 +70,8 @@ question_parsons(caption='2',
     'weight',
     'output layer',
     'bias',
-    'input layer'
+    'input layer',
+    'step'
   ),
   pass_if(
     c(
@@ -110,91 +92,75 @@ question_parsons(caption='2',
 )
 ```
 
-```{r q3, echo=FALSE}
-quiz(caption='3',
-  question("Mengapa tiap inisialisasi bobot, nilainya berbeda?",
+```{r refreshment, echo=FALSE}
+quiz(caption='Pilih satu atau lebih dari satu jawaban!',
+    question("Pernyataan di bawah ini yang benar mengenai Neural Network, KECUALI…",
+           type = "learnr_radio", correct = "Betul!",
+           incorrect = "Jawaban Anda masih kurang tepat",
+           allow_retry = TRUE, 
+           random_answer_order = TRUE,
+           answer("backpropagation dihitung menggunakan metode chain rule"),
+           answer("semakin banyak jumlah epoch, semakin tinggi akurasi model", correct = T),
+           answer("jumlah neuron pada hidden layer ditentukan oleh user"),
+           answer('dataset dengan kelas/label imbalance dapat menggunakan recall sebagai metrik evaluasi')),
+    question("Mengapa tiap inisialisasi bobot, nilainya berbeda?",
            type = "learnr_radio", correct = "Betul! Agar inisialisasi bobot bernilai sama setiap dijalankan, Anda dapat menggunakan fungsi set.seed().",
-           incorrect = "Jawaban Anda masih kurang tepat", 
+           incorrect = "Jawaban Anda masih kurang tepat",
            allow_retry = TRUE, random_answer_order = TRUE,
            answer("inisialisasi bobot dilakukan secara random", correct = T),
            answer("inisialisasi bobot dipengaruhi training data"),
            answer("bergantung pada fungsi aktivasi yang digunakan"),
-           answer('inisialisasi bobot diambil dari jumlah node pada input layer'))
-)
-```
-
-```{r q4, echo=FALSE}
-quiz(caption='4',
-  question("Perbedaan antara Neural Network dan Deep Learning adalah..",
+           answer('inisialisasi bobot diambil dari jumlah node pada input layer')),
+     question("Perbedaan antara Neural Network dan Deep Learning adalah..",
            type = "learnr_radio", correct = "Betul!",
-           incorrect = "Jawaban Anda masih kurang tepat", 
+           incorrect = "Jawaban Anda masih kurang tepat",
            allow_retry = TRUE, random_answer_order = TRUE,
            answer("jumlah input layer"),
            answer("jumlah hidden layer", correct = T),
            answer("jumlah output layer"),
-           answer('semua pernyataan benar'))
-)
-```
-
-```{r q5, echo=FALSE}
-quiz(caption='5',
-  question("Mengapa inisialiasi bobot tidak dimulai dari nilai nol?",
+           answer('semua pernyataan benar')),
+    question("Mengapa inisialiasi bobot tidak dimulai dari nilai nol?",
            type = "learnr_checkbox", correct = "Betul!",
-           incorrect = "Jawaban Anda masih kurang tepat. Anda dapat memilih lebih dari satu pilihan jawaban", 
+           incorrect = "Jawaban Anda masih kurang tepat. Anda dapat memilih lebih dari satu pilihan jawaban",
            allow_retry = TRUE, random_answer_order = TRUE,
            answer("inisialisasi bobot yang konstan akan mengarah kepada kinerja model yang buruk", correct = T),
            answer("tiap neuron di tiap layer akan mempunyai bobot yang sama", correct = T),
            answer("bobot tiap neuron akan menjadi terlalu besar sehingga menimbulkan vanishing gradient problem"),
-           answer('neuron akan mempelajari fitur yang sama selama pelatihan', correct = T))
-)
-```
-
-```{r q6, echo=FALSE}
-quiz(caption='6',
-  question("Mengapa kita memerlukan fungsi aktivasi (activation function) pada neural network?",
+           answer('neuron akan mempelajari fitur yang sama selama pelatihan', correct = T)),
+    question("Mengapa kita memerlukan fungsi aktivasi (activation function) pada neural network?",
            type = "learnr_checkbox", correct = "Betul!",
-           incorrect = "Jawaban Anda masih kurang tepat. Anda dapat memilih lebih dari satu pilihan jawaban", 
+           incorrect = "Jawaban Anda masih kurang tepat. Anda dapat memilih lebih dari satu pilihan jawaban",
            allow_retry = TRUE, random_answer_order = TRUE,
            answer("fungsi aktivasi mengatur output dari suatu neuron", correct = T),
            answer("menambahkan non-linearitas pada neural network", correct = T),
            answer("agar nilai yang teruskan oleh neuron sudah dalam bentuk/range yang sesuai", correct = T),
-           answer('activation function digunakan untuk mengevaluasi nilai error saat forward propagation'))
-)
-```
-
-```{r q7, echo=FALSE}
-quiz(caption='7',
-  question("Pernyataan di bawah ini yang benar mengenai konsep Neural Network adalah...",
+           answer('activation function digunakan untuk mengevaluasi nilai error saat forward propagation')),
+    question("Pernyataan di bawah ini yang benar mengenai konsep Neural Network adalah...",
            type = "learnr_radio", correct = "Betul!",
-           incorrect = "Jawaban Anda masih kurang tepat", 
+           incorrect = "Jawaban Anda masih kurang tepat",
            allow_retry = TRUE, random_answer_order = TRUE,
            answer("activation function sigmoid cocok untuk kasus biner karena mempunyai range nilai probabilitas", correct = T),
            answer("activation function ReLu cocok untuk output layer pada kasus klasifikasi gambar"),
            answer("activation function tanh cocok untuk kasus data image karena range nilai sesuai dengan range"),
-           answer('semua pernyataan benar'))
-)
-```
-
-```{r q8, echo=FALSE}
-quiz(caption='8',
-  question("Kasus prediksi jumlah penjualan pada suatu perusahaan merupakan salah satu kasus yang menggunakan nilai ___ sebagai cost function pada modelnya.",
+           answer('semua pernyataan benar')),
+    question("Kasus prediksi jumlah penjualan pada suatu perusahaan merupakan salah satu kasus yang menggunakan nilai ___ sebagai cost function pada modelnya.",
            type = "learnr_checkbox", correct = "Betul!",
-           incorrect = "Jawaban Anda masih kurang tepat", 
+           incorrect = "Jawaban Anda masih kurang tepat",
            allow_retry = TRUE, random_answer_order = TRUE,
            answer("mean squared error", correct = T),
            answer("binary cross entropy"),
            answer("cross entropy"),
            answer('sum of squared error', correct = T))
-)
+     )
 ```
 
 ## Case Regresi
 
 Pada latihan ini, kita akan menggunakan dataset Boston yang tersedia pada package [MASS](https://cran.r-project.org/web/packages/MASS/index.html). Dataset Boston berisi data perumahan di pinggiran kota Boston. 
 
-__Business question__: prediksi nilai median rumah yang ditempati pemilik (medv) menggunakan semua variabel yang tersedia.
+__Problem question__: prediksi nilai median rumah yang ditempati pemilik (medv) menggunakan semua variabel yang tersedia.
 
-```{r data_regresi, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+```{r data_regresi-setup, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
 # Read Data
 set.seed(13)
 data <- Boston
@@ -210,9 +176,7 @@ test <- testing(index)
 train_m <- model.matrix(~., data = train) %>% 
           as.data.frame()
 
-nn <- neuralnet(medv ~ crim + zn + indus + chas + nox 
-                + rm + age + dis + rad + tax + 
-                ptratio + black + lstat, 
+nn <- neuralnet(formula = medv ~ ., 
                 data = train, hidden = c(5, 3), 
                 linear.output = TRUE)
 
@@ -221,6 +185,7 @@ pr.nn <- neuralnet::compute(nn, test[,1:13])
 pr.nn_ <- pr.nn$net.result * (max(data$medv) - min(data$medv)) + min(data$medv)
 test.r <- (test$medv) * (max(data$medv) - min(data$medv)) +  min(data$medv)
 MSE.nn <- sum((test.r - pr.nn_)^2) / nrow(test)
+RMSE.nn <- sqrt(MSE.nn)
 ```
 
 
@@ -252,7 +217,7 @@ Deskripsi Data:
 
 * `PTRATIO` - rasio murid-guru berdasarkan kota
 
-* `B` - 1000(Bk - 0,63)^2 di mana Bk adalah proporsi orang kulit hitam per kota
+* `B` - $1000(Bk - 0,63)^2$ dengan $Bk$ adalah proporsi orang kulit hitam per kota
 
 * `LSTAT` - % populasi yang memiliki [status rendah](https://opendata.stackexchange.com/questions/15740/what-does-lower-status-mean-in-boston-house-prices-dataset)
 
@@ -269,11 +234,11 @@ dim(data)
 
 Adakah tipe data yang belum sesuai?
 
-```{r d1, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "data_regresi"}
+```{r data_mutate, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "data_regresi-setup"}
 
 ```
 
-```{r d1-solution}
+```{r data_mutate-solution}
 # koreksi tipe data
 data <- data %>% 
   mutate_if(is.character, as.factor)
@@ -282,24 +247,24 @@ head(data)
 
 Apakah terdapat missing value?
 
-```{r d2, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "data_regresi"}
+```{r missing_value, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "data_mutate"}
 
 ```
 
-```{r d2-solution}
+```{r missing_value-solution}
 anyNA(data)
 ```
 
 ### Data Preprocessing
 
-Bagi data menjadi data train dan data test dengan 80% data sebagai data train. simpan data train pada variabel `train` dan data test pada variabel `test`
+Bagi data menjadi data train dan data test dengan 80% data sebagai data train. Simpan data train pada variabel `train` dan data test pada variabel `test`.
 
-```{r d3, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE, exercise.setup = "data_regresi"}
+```{r data_split, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE, exercise.setup = "data_mutate"}
 set.seed(13)
 
 ```
 
-```{r d3-solution}
+```{r data_split-solution}
 set.seed(13)
 
 index <- initial_split(data = data, prop = 0.8)
@@ -308,9 +273,9 @@ train <- training(index)
 test <- testing(index)
 ```
 
-```{r letter-a, echo=FALSE}
+```{r quiz_regresi_preprocessing, echo=FALSE}
 quiz(
-  question("Selain cross validation, proses initermasuk dalam data preprocessing, KECUALI...",
+  question("Selain cross validation, proses ini termasuk dalam data preprocessing, KECUALI...",
            type = "learnr_radio", correct = "Betul",
            incorrect = "Jawaban Anda masih kurang tepat", 
            allow_retry = TRUE, random_answer_order = FALSE,
@@ -321,105 +286,42 @@ quiz(
 )
 ```
 
-Gunakan `model.matrix()` untuk data train dan simpan ke dalam `train_m`.
-
-```{r d4, exercise = TRUE, exercise.eval = TRUE, exercise.setup = TRUE, exercise.setup = "data_regresi"}
-
-```
-
-```{r d4-solution}
-train_m <- model.matrix(~., data = train) %>% 
-          as.data.frame()
-
-head(train_m)
-```
-
 ### Build Model
 
-Fungsi `neuralnet()` hanya menerima formula lengkap; tidak menerima formula `target ~ .`, sehingga kita harus siapkan secara manual untuk formulanya. Simpan model pada variabel `nn`.
+Gunakan fungsi `neuralnet` dan simpan model pada variabel `nn`.
 
-```{r d5, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE, exercise.setup = "data_regresi"}
+```{r build_model, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE, exercise.setup = "data_split"}
 
 ```
 
-```{r d5-solution}
+```{r build_model-solution}
 # Build Neural Network
-nn <- neuralnet(medv ~ crim + zn + indus + chas + nox 
-                + rm + age + dis + rad + tax + 
-                ptratio + black + lstat, 
+nn <- neuralnet(formula = medv ~ ., 
                 data = train, hidden = c(5, 3), 
                 linear.output = TRUE)
 ```
 
-Jika running model terlalu lama, Anda dapat mencoba mencocokan parameter - parameter dalam fungsi neuralnet() yang digunakan untuk kasus regresi. Urutkan parameter sesuai dengan dokumentasi fungsi neuralnet[!]
-```{r model_nn, echo = FALSE}
-
-question_parsons(
-  initial = c(
-      "formula = formula_m,",
-      "hidden = C(5, 2),",
-      "hidden = 5,",
-      "rep = 1,",
-      "rep = 'best',",
-      'err.fct = "sse",',
-      'err.fct = "bce",',
-      "data = abalone_m,",      
-      'linear.output = T',
-      'linear.output = F',
-      'act.fct = "logistic",',
-      'act.fct = "softmax",'
-  ),
-  pass_if(
-    c(
-      "formula = formula_m,",
-      "data = abalone_m,",
-      "hidden = C(5, 2),",
-      "rep = 1,",
-      'err.fct = "sse",',
-      'act.fct = "logistic",',
-      'linear.output = T'
-    )
-  ),
-  fail_if(
-    ~length(.) < 6,
-    message = "Include at least six answers"
-  ),
-  fail_if(
-    function(x){"print()" %in% x},
-    message = "You should not include print() in your answer"
-  ),
-  fail_if(
-    ~{.[1] != "formula = formula_m"},
-    message = "Your solution should start with 'formula = formula_m'"
-  ),
-    fail_if(
-    ~{.[-1] != 'linear.output = T'},
-    message = "perhatikan sintax parameter jika ditambahkan pada akhir"
-  ),
-  problem_type = 'base'
-)
-```
 
 plot model `nn`:
 
-```{r d6, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE, exercise.setup = "data_regresi"}
+```{r plot_nn, exercise = TRUE, exercise.eval = TRUE, echo = FALSE, exercise.setup = "build_model"}
 
 ```
 
-```{r d6-solution}
+```{r plot_nn-solution}
 # Plot the neural network
-plot(nn)
+plot(nn, rep = "best")
 ```
 
 ### Predict 
 
 Untuk prediksi kita dapat gunakan `compute()`
 
-```{r d7, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE, exercise.setup = "data_regresi"}
+```{r predict, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE, exercise.setup = "build_model"}
 
 ```
 
-```{r d7-solution}
+```{r predict-solution}
 # Predict on test data
 pr.nn <- neuralnet::compute(nn, test[,1:13])
 
@@ -429,19 +331,20 @@ head(pr.nn$net.result)
 
 ### Evaluation
 
-Evaluasi model dengan metrik mean square error
+Evaluasi model dengan metrik mean square error atau root mean square error.
 
-```{r d8, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE, exercise.setup = "data_regresi"}
+```{r evaluation, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE, exercise.setup = "predict"}
 
 ```
 
-```{r d8-solution}
+```{r evaluation-solution}
 # Compute mean squared error
 pr.nn_ <- pr.nn$net.result * (max(data$medv) - min(data$medv)) 
                                               + min(data$medv)
 test.r <- (test$medv) * (max(data$medv) - min(data$medv)) + 
                                               min(data$medv)
 MSE.nn <- sum((test.r - pr.nn_)^2) / nrow(test)
+RMSE.nn <- sqrt(MSE.nn)
 ```
 
 
@@ -451,7 +354,7 @@ Pada case klasifikasi ini, kita akan menggunakan dataset Iris.
 
 __Problem question__: Prediksi species bunga Iris dari rincian ukuran sepal dan petal.
 
-```{r data_klasifikasi, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+```{r data_klasifikasi-setup, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
 # Read Data
 set.seed(13)
 
@@ -479,9 +382,6 @@ cm = confusionMatrix(as.factor(ytest), as.factor(yhat$yhat))
 head(iris)
 ```
 
-Deskripsi dan range data:
-
-
 ### Exploratory Data Analysis
 
 Cek label klasifikasi
@@ -498,24 +398,28 @@ dim(iris)
 
 Adakah tipe data yang belum sesuai?
 
-```{r d9, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE, exercise.setup = "data_klasifikasi"}
+```{r data_type_iris, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "data_klasifikasi-setup"}
 
 ```
 
 Apakah terdapat missing value?
 
-```{r d10, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE,exercise.setup = "data_klasifikasi"}
+```{r missing_iris, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE,exercise.setup = "data_klasifikasi-setup"}
 
 ```
 
-```{r d10-solution}
+```{r missing_iris-solution}
 # cek missing value
 anyNA(iris)
 ```
 
 Apakah proporsi kelas target seimbang?
 
-```{r d11, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup = "data_klasifikasi"}
+```{r proportion_iris, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup = "data_klasifikasi-setup"}
+
+```
+
+```{r proportion_iris-solution}
 table(iris$Species)
 ```
 
@@ -523,11 +427,11 @@ table(iris$Species)
 
 Bagi data menjadi data train dan data test dengan 80% data sebagai data train. simpan data train pada variabel `train` dan data test pada variabel `test`
 
-```{r d12, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "data_klasifikasi"}
+```{r split_iris, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "data_klasifikasi-setup"}
 set.seed(13)
 ```
 
-```{r d12-solution}
+```{r split_iris-solution}
 set.seed(13)
 
 index <- initial_split(data = iris, prop = 0.8)
@@ -536,38 +440,28 @@ train_bc <- training(index)
 test_bc <- testing(index)
 ```
 
-**2. Pembuatan model menggunakan `neuralnet()`**
+### Build Neural Network and plot it
 
-#Build Neural Network
-
-```{r d16, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "data_klasifikasi"}
-
+```{r build_model_iris, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "split_iris"}
+# nn_iris <- ...
+# 
+# plot(nn_iris, rep = "best")
 ```
 
-```{r d16-solution}
-nn_bc <- neuralnet(Species~., train_bc, hidden = c(4,3), linear.output = FALSE)
-```
-
-plot model `nn_bc`:
-
-```{r d17, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "data_klasifikasi"}
-
-```
-
-```{r d17-solution}
-# Plot the neural network
-plot(nn_bc)
+```{r build_model_iris-solution}
+nn_iris <- neuralnet(Species~., train_bc, hidden = c(4,3), linear.output = FALSE)
+plot(nn_iris, rep = "best")
 ```
 
 ### Predict 
 
 Untuk prediksi kita dapat gunakan `compute()` dan simpan dalam variabel `ypred`. Inspect hasil prediksi dengan melihat nilai `net.result`!     
 
-```{r d18, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "data_klasifikasi"}
-
+```{r predict_iris, exercise = TRUE, exercise.eval = TRUE, exercise.setup = "build_model_iris"}
+# ypred <- ...
 ```
 
-```{r d18-solution}
+```{r predict_iris-solution}
 # Predict on test data
 ypred <- neuralnet::compute(nn_bc, xtest)
 
@@ -577,32 +471,28 @@ head(ypred$net.result)
 
 Hasil prediksi menunjukkan probabilitas masing-masing kelas. Kita perlu mengekstrak kelas dengan nilai prediksi tertinggi sebagai hasil prediksi.
   
-```{r ekstrak_probabilitas}
-yhat=data.frame("yhat"=ifelse(max.col(ypred$net.result[ ,1:3])==1, "setosa",
+
+```{r ekstrak_probabilitas, exercise.setup = "build_model_iris"}
+yhat <- data.frame("yhat"=ifelse(max.col(ypred$net.result[ ,1:3])==1, "setosa",
                        ifelse(max.col(ypred$net.result[ ,1:3])==2, "versicolor", "virginica")))
 ```
 
+```{r ekstrak_probabilitas_contoh}
+yhat <- data.frame("yhat"=ifelse(max.col(ypred$net.result[ ,1:3])==1, "setosa",
+                       ifelse(max.col(ypred$net.result[ ,1:3])==2, "versicolor", "virginica")))
+```
 
 ### Evaluation
 
 Evaluasi model dengan melihat confusion matrix yang terbentuk
 
-```{r d19, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE, exercise.setup = "data_klasifikasi"}
+```{r evaluation_iris, exercise = TRUE, exercise.eval = TRUE, exercise = TRUE, exercise.setup = "ekstrak_probabilitas"}
 
 ```
 
-```{r d19-solution}
+```{r evaluation_iris-solution}
 cm = confusionMatrix(as.factor(ytest), as.factor(yhat$yhat))
 cm 
 ```
-
-## Neural Network dengan Keras
-
-
-Selamat, Anda telah menyelesaikan latihan dengan topik Neural Network. Semoga latihan ini berguna dan menambah pengetahuan Anda. Sampai jumpa di lain waktu.
-
-Team Algoritma,
-
-3/3/2022
 
 

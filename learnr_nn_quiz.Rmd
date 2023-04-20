@@ -1,0 +1,141 @@
+---
+title: "Neural Network and Deep Learning"
+author: "Team Algoritma"
+output: 
+  learnr::tutorial:
+    progressive: true
+    allow_skip: true
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(reticulate)
+
+library(learnr)
+library(parsons) # for matching terms question
+library(dplyr)
+library(readr)
+library(rsample) # for initital split
+# library(keras)
+# library(tensorflow)
+library(caret) # for confusion matrix
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Background
+
+Interactive tutorial ini akan membahas mengenai Neural Network dengan R. Objektif utama dari interactive tutorial ini adalah sebagai alat pendamping untuk membantu partisipan mengejar materi di kelas. Anda diharapkan sudah mempelajari coursebook Neural Network yang sudah disediakan [Algoritma](https://algorit.ma).  
+
+## Mengenal Neural Network
+
+Neural Network atau [Artificial Neural Network (ANN)](https://en.wikipedia.org/wiki/Artificial_neural_network) adalah metode machine learning yang terinspirasi dari cara kerja otak manusia, terutama pada bagian __arsitektur jaringan syaraf__ dan __proses pembelajarannya__. Pada bagian ini, terdapat beberapa pertanyaan yang menguji kembali pepengetahuan Anda tentang Neural Network.
+
+__Urutkan term dengan definisi di bawah ini!__
+
+*Hint: beberapa terms tidak ada pada definisi berikut. Pilih term - term yang tepat!*
+
+a. Informasi yang dibawa oleh setiap neuron, sama seperti slope pada regresi.
+b. nilai intercept
+c. Fungsi untuk standarisasi hasil perhitungan
+d. Proses membawa data input melewati tiap neuron pada hidden layer sampai pada output layer yang menghasilkan prediksi
+e. Proses membawa error yang didapat dari forward propagation untuk mengupdate setiap weight dan bias.
+f. Fungsi untuk menghitung selisih antara hasil prediksi dan data aktual.
+g. Banyaknya proses iterasi (1x forward dan 1x backward) dalam keseluruhan data training model.
+
+```{r matching_terms, echo = FALSE}
+question_parsons(caption='2',
+  initial = c(
+    'backpropogation',
+    'hidden layer',
+    'cost function',
+    'layer',
+    'epoch',
+    'activation function',
+    'Forward propagation',
+    'weight',
+    'output layer',
+    'bias',
+    'input layer',
+    'step'
+  ),
+  pass_if(
+    c(
+    'weight',
+    'bias',
+    'activation function',
+    'Forward propagation',
+    'backpropogation',
+    'cost function',
+    'epoch'
+    )
+  ),
+  fail_if(
+    ~length(.) < 7,
+    message = "Include at least seven answers"
+  ),
+  problem_type = 'base'
+)
+```
+
+```{r refreshment, echo=FALSE}
+quiz(caption='Pilih satu atau lebih dari satu jawaban!',
+    question("Pernyataan di bawah ini yang benar mengenai Neural Network, KECUALI…",
+           type = "learnr_radio", correct = "Betul!",
+           incorrect = "Jawaban Anda masih kurang tepat",
+           allow_retry = TRUE, 
+           random_answer_order = TRUE,
+           answer("backpropagation dihitung menggunakan metode chain rule"),
+           answer("semakin banyak jumlah epoch, semakin tinggi akurasi model", correct = T),
+           answer("jumlah neuron pada hidden layer ditentukan oleh user"),
+           answer('dataset dengan kelas/label imbalance dapat menggunakan recall sebagai metrik evaluasi')),
+    question("Mengapa tiap inisialisasi bobot, nilainya berbeda?",
+           type = "learnr_radio", correct = "Betul! Agar inisialisasi bobot bernilai sama setiap dijalankan, Anda dapat menggunakan fungsi set.seed().",
+           incorrect = "Jawaban Anda masih kurang tepat",
+           allow_retry = TRUE, random_answer_order = TRUE,
+           answer("inisialisasi bobot dilakukan secara random", correct = T),
+           answer("inisialisasi bobot dipengaruhi training data"),
+           answer("bergantung pada fungsi aktivasi yang digunakan"),
+           answer('inisialisasi bobot diambil dari jumlah node pada input layer')),
+     question("Perbedaan antara Neural Network dan Deep Learning adalah..",
+           type = "learnr_radio", correct = "Betul!",
+           incorrect = "Jawaban Anda masih kurang tepat",
+           allow_retry = TRUE, random_answer_order = TRUE,
+           answer("jumlah input layer"),
+           answer("jumlah hidden layer", correct = T),
+           answer("jumlah output layer"),
+           answer('semua pernyataan benar')),
+    question("Mengapa inisialiasi bobot tidak dimulai dari nilai nol?",
+           type = "learnr_checkbox", correct = "Betul!",
+           incorrect = "Jawaban Anda masih kurang tepat. Anda dapat memilih lebih dari satu pilihan jawaban",
+           allow_retry = TRUE, random_answer_order = TRUE,
+           answer("inisialisasi bobot yang konstan akan mengarah kepada kinerja model yang buruk", correct = T),
+           answer("tiap neuron di tiap layer akan mempunyai bobot yang sama", correct = T),
+           answer("bobot tiap neuron akan menjadi terlalu besar sehingga menimbulkan vanishing gradient problem"),
+           answer('neuron akan mempelajari fitur yang sama selama pelatihan', correct = T)),
+    question("Mengapa kita memerlukan fungsi aktivasi (activation function) pada neural network?",
+           type = "learnr_checkbox", correct = "Betul!",
+           incorrect = "Jawaban Anda masih kurang tepat. Anda dapat memilih lebih dari satu pilihan jawaban",
+           allow_retry = TRUE, random_answer_order = TRUE,
+           answer("fungsi aktivasi mengatur output dari suatu neuron", correct = T),
+           answer("menambahkan non-linearitas pada neural network", correct = T),
+           answer("agar nilai yang teruskan oleh neuron sudah dalam bentuk/range yang sesuai", correct = T),
+           answer('activation function digunakan untuk mengevaluasi nilai error saat forward propagation')),
+    question("Pernyataan di bawah ini yang benar mengenai konsep Neural Network adalah...",
+           type = "learnr_radio", correct = "Betul!",
+           incorrect = "Jawaban Anda masih kurang tepat",
+           allow_retry = TRUE, random_answer_order = TRUE,
+           answer("activation function sigmoid cocok untuk kasus biner karena mempunyai range nilai probabilitas", correct = T),
+           answer("activation function ReLu cocok untuk output layer pada kasus klasifikasi gambar"),
+           answer("activation function tanh cocok untuk kasus data image karena range nilai sesuai dengan range"),
+           answer('semua pernyataan benar')),
+    question("Kasus prediksi jumlah penjualan pada suatu perusahaan merupakan salah satu kasus yang menggunakan nilai ___ sebagai cost function pada modelnya.",
+           type = "learnr_checkbox", correct = "Betul!",
+           incorrect = "Jawaban Anda masih kurang tepat",
+           allow_retry = TRUE, random_answer_order = TRUE,
+           answer("mean squared error", correct = T),
+           answer("binary cross entropy"),
+           answer("cross entropy"),
+           answer('sum of squared error', correct = T))
+     )
+```
+
