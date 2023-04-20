@@ -1,0 +1,543 @@
+---
+title: "Neural Network and Deep Learning"
+author: "Team Algoritma"
+output: 
+  learnr::tutorial:
+    progressive: true
+    allow_skip: true
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(reticulate)
+
+library(learnr)
+library(parsons) # for matching terms question
+library(dplyr)
+library(readr)
+library(rsample) # for initital split
+library(keras)
+library(tensorflow)
+library(caret) # for confusion matrix
+knitr::opts_chunk$set(echo = FALSE)
+
+
+# If running locally, comment out
+# Precondition: .Rprofile has already executed to set environment variables when R session starts
+# virtualenv_dir = Sys.getenv('VIRTUALENV_NAME')
+# python_path = Sys.getenv('PYTHON_PATH')
+# dependencies = c('numpy', 'keras', 'tensorflow')
+# reticulate::virtualenv_create(envname = virtualenv_dir, python = python_path)
+# reticulate::virtualenv_install(virtualenv_dir, packages = dependencies, ignore_installed=TRUE)
+# reticulate::use_virtualenv(virtualenv_dir, required = TRUE)
+
+# if (!is_keras_available()) {
+#   install_keras(method="virtualenv", envname=virtualenv_dir)
+#   reticulate::use_virtualenv(virtualenv_dir, required=TRUE)
+#   library(keras)
+#   library(reticulate)
+# }
+```
+
+## Background
+
+Interactive tutorial ini akan membahas mengenai Neural Network dengan R. Objektif utama dari interactive tutorial ini adalah sebagai alat pendamping untuk membantu partisipan mengejar materi di kelas. Anda diharapkan sudah mempelajari coursebook Neural Network yang sudah disediakan [Algoritma](https://algorit.ma).  
+
+## Mengenal Neural Network
+
+Neural Network atau [Artificial Neural Network (ANN)](https://en.wikipedia.org/wiki/Artificial_neural_network) adalah metode machine learning yang terinspirasi dari cara kerja otak manusia, terutama pada bagian __arsitektur jaringan syaraf__ dan __proses pembelajarannya__. Pada bagian ini, terdapat beberapa pertanyaan yang menguji kembali pepengetahuan Anda tentang Neural Network.
+
+__Urutkan term dengan definisi di bawah ini!__
+
+*Hint: beberapa terms tidak ada pada definisi berikut. Pilih term - term yang tepat!*
+
+a. Informasi yang dibawa oleh setiap neuron, sama seperti slope pada regresi.
+b. nilai intercept
+c. Fungsi untuk standarisasi hasil perhitungan
+d. Proses membawa data input melewati tiap neuron pada hidden layer sampai pada output layer yang menghasilkan prediksi
+e. Proses membawa error yang didapat dari forward propagation untuk mengupdate setiap weight dan bias.
+f. Fungsi untuk menghitung selisih antara hasil prediksi dan data aktual.
+g. Banyaknya proses iterasi (1x forward dan 1x backward) dalam keseluruhan data training model.
+
+```{r matching_terms, echo = FALSE}
+question_parsons(caption='2',
+  initial = c(
+    'backpropogation',
+    'hidden layer',
+    'cost function',
+    'layer',
+    'epoch',
+    'activation function',
+    'Forward propagation',
+    'weight',
+    'output layer',
+    'bias',
+    'input layer',
+    'step'
+  ),
+  pass_if(
+    c(
+    'weight',
+    'bias',
+    'activation function',
+    'Forward propagation',
+    'backpropogation',
+    'cost function',
+    'epoch'
+    )
+  ),
+  fail_if(
+    ~length(.) < 7,
+    message = "Include at least seven answers"
+  ),
+  problem_type = 'base'
+)
+```
+
+```{r refreshment, echo=FALSE}
+quiz(caption='Pilih satu atau lebih dari satu jawaban!',
+    question("Pernyataan di bawah ini yang benar mengenai Neural Network, KECUALI…",
+           type = "learnr_radio", correct = "Betul!",
+           incorrect = "Jawaban Anda masih kurang tepat",
+           allow_retry = TRUE, 
+           random_answer_order = TRUE,
+           answer("backpropagation dihitung menggunakan metode chain rule"),
+           answer("semakin banyak jumlah epoch, semakin tinggi akurasi model", correct = T),
+           answer("jumlah neuron pada hidden layer ditentukan oleh user"),
+           answer('dataset dengan kelas/label imbalance dapat menggunakan recall sebagai metrik evaluasi')),
+    question("Mengapa tiap inisialisasi bobot, nilainya berbeda?",
+           type = "learnr_radio", correct = "Betul! Agar inisialisasi bobot bernilai sama setiap dijalankan, Anda dapat menggunakan fungsi set.seed().",
+           incorrect = "Jawaban Anda masih kurang tepat",
+           allow_retry = TRUE, random_answer_order = TRUE,
+           answer("inisialisasi bobot dilakukan secara random", correct = T),
+           answer("inisialisasi bobot dipengaruhi training data"),
+           answer("bergantung pada fungsi aktivasi yang digunakan"),
+           answer('inisialisasi bobot diambil dari jumlah node pada input layer')),
+     question("Perbedaan antara Neural Network dan Deep Learning adalah..",
+           type = "learnr_radio", correct = "Betul!",
+           incorrect = "Jawaban Anda masih kurang tepat",
+           allow_retry = TRUE, random_answer_order = TRUE,
+           answer("jumlah input layer"),
+           answer("jumlah hidden layer", correct = T),
+           answer("jumlah output layer"),
+           answer('semua pernyataan benar')),
+    question("Mengapa inisialiasi bobot tidak dimulai dari nilai nol?",
+           type = "learnr_checkbox", correct = "Betul!",
+           incorrect = "Jawaban Anda masih kurang tepat. Anda dapat memilih lebih dari satu pilihan jawaban",
+           allow_retry = TRUE, random_answer_order = TRUE,
+           answer("inisialisasi bobot yang konstan akan mengarah kepada kinerja model yang buruk", correct = T),
+           answer("tiap neuron di tiap layer akan mempunyai bobot yang sama", correct = T),
+           answer("bobot tiap neuron akan menjadi terlalu besar sehingga menimbulkan vanishing gradient problem"),
+           answer('neuron akan mempelajari fitur yang sama selama pelatihan', correct = T)),
+    question("Mengapa kita memerlukan fungsi aktivasi (activation function) pada neural network?",
+           type = "learnr_checkbox", correct = "Betul!",
+           incorrect = "Jawaban Anda masih kurang tepat. Anda dapat memilih lebih dari satu pilihan jawaban",
+           allow_retry = TRUE, random_answer_order = TRUE,
+           answer("fungsi aktivasi mengatur output dari suatu neuron", correct = T),
+           answer("menambahkan non-linearitas pada neural network", correct = T),
+           answer("agar nilai yang teruskan oleh neuron sudah dalam bentuk/range yang sesuai", correct = T),
+           answer('activation function digunakan untuk mengevaluasi nilai error saat forward propagation')),
+    question("Pernyataan di bawah ini yang benar mengenai konsep Neural Network adalah...",
+           type = "learnr_radio", correct = "Betul!",
+           incorrect = "Jawaban Anda masih kurang tepat",
+           allow_retry = TRUE, random_answer_order = TRUE,
+           answer("activation function sigmoid cocok untuk kasus biner karena mempunyai range nilai probabilitas", correct = T),
+           answer("activation function ReLu cocok untuk output layer pada kasus klasifikasi gambar"),
+           answer("activation function tanh cocok untuk kasus data image karena range nilai sesuai dengan range"),
+           answer('semua pernyataan benar')),
+    question("Kasus prediksi jumlah penjualan pada suatu perusahaan merupakan salah satu kasus yang menggunakan nilai ___ sebagai cost function pada modelnya.",
+           type = "learnr_checkbox", correct = "Betul!",
+           incorrect = "Jawaban Anda masih kurang tepat",
+           allow_retry = TRUE, random_answer_order = TRUE,
+           answer("mean squared error", correct = T),
+           answer("binary cross entropy"),
+           answer("cross entropy"),
+           answer('sum of squared error', correct = T))
+     )
+```
+
+## Neural Network dengan Keras
+
+Di interactive tutorial kali ini, buatlah sebuah model *Neural Network/Deep Learning* dengan framework [keras](https://tensorflow.rstudio.com/guides/keras/basics) untuk klasifikasi gambar barang-barang fashion dari data [Fashion MNIST](https://www.kaggle.com/zalando-research/fashionmnist)!
+
+
+```{r keras-setup, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+# library(reticulate)
+
+# read fashion mnist train dan test data
+# fashion_mnist <- read.csv(here::here("/Users/hwulanayu/WORK/Algoritma/DSTprojects/learnr-nn/learnr_files/data_input/fashionmnist/train.RDS"))
+# fashion_test <- read_csv(here::here("/Users/hwulanayu/WORK/Algoritma/DST projects/learnr-nn/learnr_files/data_input/fashionmnist/test.csv"))
+
+fashion_mnist <- read.csv(here::here("data_input/fashionmnist/train.RDS"))
+# fashion_test <- read_csv(here::here("data_input/fashionmnist/test.csv"))
+
+vizTrain <- function(input) {
+    
+    dimmax <- sqrt(ncol(fashion_mnist[, -1]))
+    
+    dimn <- ceiling(sqrt(nrow(input)))
+    par(mfrow = c(dimn, dimn), mar = c(0.1, 0.1, 0.1, 
+        0.1))
+    
+    for (i in 1:nrow(input)) {
+        m1 <- matrix(input[i, 2:ncol(input)], nrow = dimmax, 
+            byrow = T)
+        m1 <- apply(m1, 2, as.numeric)
+        m1 <- t(apply(m1, 2, rev))
+        
+        image(1:dimmax, 1:dimmax, m1, col = grey.colors(255), 
+            xaxt = "n", yaxt = "n")
+        text(2, 20, col = "white", cex = 1.2, fashion_mnist[i, 
+            1])
+    }
+    
+}
+
+set.seed(123)
+fashion_mnist_split <- initial_split(data = fashion_mnist, prop = 0.8, strata = "label")
+fashion_mnist_train <- training(fashion_mnist_split)
+fashion_mnist_test <- testing(fashion_mnist_split)
+
+# ambil prediktor dan lakukan scaling
+#prediktor
+train_x <- fashion_mnist_train %>% 
+  dplyr::select(-label) %>% 
+  as.matrix()/255
+test_x <- fashion_mnist_test %>% 
+  dplyr::select(-label) %>% 
+  as.matrix()/255
+#target
+train_y <- fashion_mnist_train$label
+test_y <- fashion_mnist_test$label
+
+# prediktor
+train_x_keras <- train_x %>% 
+  array_reshape(dim = dim(train_x))
+test_x_keras <- test_x %>% 
+  array_reshape(dim = dim(test_x))
+
+train_y_keras <- train_y %>% 
+  as.matrix() %>% 
+  to_categorical()
+test_y_keras <- test_y %>% 
+  as.matrix() %>% 
+  to_categorical()
+
+model <- keras_model_sequential()
+
+tensorflow::tf$random$set_seed(123)
+model %>%
+  layer_dense(input_shape = 784,
+              units = 64,
+              activation = "relu",
+              name = "hidden1") %>%
+  layer_dense(units = 32,
+              activation = "relu",
+              name = "hidden2") %>%
+  layer_dense(units = 16,
+              activation = "relu",
+              name = "hidden3") %>%
+  layer_dense(units = 10,
+              activation = "softmax",
+              name = "output")
+
+model %>%
+compile(loss = "categorical_crossentropy",
+        optimizer = optimizer_adam(learning_rate = 0.001),
+        metric = "accuracy")
+
+# history <- model %>%
+#            fit(train_x_keras,# predictor
+#                train_y_keras,# target
+#                epoch = 15,
+#                batch= 100)
+
+#plot(history)
+
+# # melakuan prediksi
+# predict_class <- predict(model, test_x) %>%
+#   k_argmax() %>% # mengambil kelas yang peluangnya paling besar
+#   as.array() %>%
+#   as.factor()
+
+
+#confusionMatrix(data = as.factor(predict_class), reference = as.factor(test_y$label))
+```
+
+### Data Preparation
+
+#### 1. Load dataset
+```{r load_dataset, echo=FALSE, exercise.setup = "keras-setup"}
+# read fashion mnist train dan test data
+head(fashion_mnist)
+```
+
+
+### Exploratory Data Analysis
+
+#### 1. Cek dimensi data
+```{r dim_data, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup = "load_dataset", exercise.timelimit= 60}
+
+```
+
+```{r dim_data-solution}
+dim(fashion_mnist)
+```
+
+Inspect 6 data awal
+```{r inspect, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup = "dim_data", exercise.timelimit= 60}
+
+```
+
+```{r inspect-solution}
+fashion_mnist$label %>%
+  table() %>%
+  prop.table()
+ncol(fashion_mnist) - 1
+
+fashion_mnist %>%
+  dplyr::select(-label) %>%
+  range()
+```
+
+```{r q_nn, echo=FALSE}
+quiz(caption='Dari data di atas, coba jawab pertanyaan-pertanyaan di bawah ini:',
+  question("Berapa banyak category yang ada pada kelas target? Bagaimana proporsinya?",
+           type = "learnr_radio", correct = "Betul!",
+           incorrect = "Jawaban Anda masih kurang tepat",
+           allow_retry = TRUE, random_answer_order = TRUE,
+           answer("9, tidak seimbang"),
+           answer("10, seimbang", correct = T),
+           answer("9, seimbang"),
+           answer('10, tidak seimbang')),
+   question("Berapa banyak prediktor yang ada?",
+           type = "learnr_radio", correct = "Betul!",
+           incorrect = "Jawaban Anda masih kurang tepat. hint: jangan lupa kurangi dengan kolom label",
+           allow_retry = TRUE, random_answer_order = TRUE,
+           answer("784", correct = T),
+           answer("785"),
+           answer("9"),
+           answer('10'))
+)
+```
+
+#### 2. Visualisasi data
+```{r visualisasi, echo=TRUE}
+# visualisasi
+vizTrain(fashion_mnist[1:25, ])
+```
+
+#### 3. Cross Validation
+
+Lakukan cross validation menggunakan fungsi `initial_split()` dari package `rsample` dengan proporsi 80% data untuk data training.
+```{r cross_val, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup = "load_dataset", exercise.timelimit= 60}
+set.seed(123)
+```
+
+```{r cross_val-solution}
+set.seed(123)
+fashion_mnist_split <- initial_split(data = fashion_mnist, prop = 0.8, strata = "label")
+fashion_mnist_train <- training(fashion_mnist_split)
+fashion_mnist_test <- testing(fashion_mnist_split)
+```
+
+### Data Pre-processing
+
+1. Memisahkan prediktor dengan target variabel
+2. Mengubah format data menjadi array. Dari data.frame $\rightarrow$ matrix $\rightarrow$ array
+3. One-hot encoding apabila target variabel adalah kategori
+4. Scalling data/ Feature scaling
+
+#### Memisahkan prediktor dengan target variabel, ubah data menjadi matrix, & scaling
+
+```{r preprocessing, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup = "cross_val", exercise.timelimit= 60}
+
+```
+
+```{r preprocessing-solution}
+# ambil prediktor dan lakukan scaling
+#prediktor
+train_x <- fashion_mnist_train %>%
+  dplyr::select(-label) %>%
+  as.matrix()/255
+test_x <- fashion_mnist_test %>%
+  dplyr::select(-label) %>%
+  as.matrix()/255
+#target
+train_y <- fashion_mnist_train$label
+test_y <- fashion_mnist_test$label
+```
+
+#### Processing prediktor: mengubah matrix menjadi array
+
+```{r to_array, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup = "preprocessing", exercise.timelimit= 60}
+
+```
+
+```{r to_array-solution}
+# prediktor
+train_x_keras <- train_x %>%
+  array_reshape(dim = dim(train_x))
+test_x_keras <- test_x %>%
+  array_reshape(dim = dim(test_x))
+```
+
+#### Processing target: One Hot Encoding
+```{r one_hot, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup = "to_array", exercise.timelimit= 60}
+```
+
+```{r one_hot-solution}
+train_y_keras <- train_y %>%
+  as.matrix() %>%
+  to_categorical()
+
+test_y_keras <- test_y %>% 
+  as.matrix() %>% 
+  to_categorical()
+```
+
+### Build Neural Network
+
+```{r model_fitting-setup, echo=FALSE, results='hide', message=FALSE, warning=FALSE, exercise.setup="one_hot"}
+library(reticulate)
+model <- keras_model_sequential()
+
+model %>%
+  layer_dense(input_shape = 784,
+              units = 64,
+              activation = "relu",
+              name = "hidden1") %>%
+  layer_dense(units = 32,
+              activation = "relu",
+              name = "hidden2") %>%
+  layer_dense(units = 16,
+              activation = "relu",
+              name = "hidden3") %>%
+  layer_dense(units = 10,
+              activation = "softmax",
+              name = "output")
+
+model %>%
+compile(loss = "categorical_crossentropy",
+        optimizer = optimizer_adam(learning_rate = 0.001),
+        metric = "accuracy")
+
+history <- model %>%
+           fit(train_x_keras,# predictor
+               train_y_keras,# target
+               epoch = 15,
+               batch= 100)
+
+#plot(history)
+
+# # melakuan prediksi
+predict_class <- predict(model, test_x) %>%
+  k_argmax() %>% # mengambil kelas yang peluangnya paling besar
+  as.array() %>%
+  as.factor()
+
+
+confusionMatrix(data = as.factor(predict_class), reference = as.factor(fashion_mnist_test$label))
+```
+
+#### 1. Build a model base using keras_model_sequential()
+
+```{r model_keras, echo=FALSE, exercise.setup = "one_hot"}
+# keras initialization
+model <- keras_model_sequential()
+```
+
+#### 2. Building Architecture (define layers, neurons, and activation function)
+
+```{r architect, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup = "model_keras", exercise.timelimit= 60}
+tensorflow::tf$random$set_seed(123)
+```
+
+```{r architect-solution}
+tensorflow::tf$random$set_seed(123)
+model %>%
+  layer_dense(input_shape = 784,
+              units = 64,
+              activation = "relu",
+              name = "hidden_1") %>%
+  layer_dense(units = 32,
+              activation = "relu",
+              name = "hidden_2") %>%
+  layer_dense(units = 16,
+              activation = "relu",
+              name = "hidden_3") %>%
+  layer_dense(units = 10,
+              activation = "softmax",
+              name = "output")
+summary(model)
+```
+
+
+#### 3. Building Architecture (define cost function and optimizer)
+
+```{r model_compile, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup = "architect", exercise.timelimit= 60}
+
+```
+
+```{r model_compile-solution}
+model %>%
+compile(loss = "categorical_crossentropy",
+        optimizer = optimizer_adam(learning_rate = 0.001),
+        metric = "accuracy")
+```
+
+#### 4. Fitting model in the training set and plot it
+
+```{r model_fitting, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup = "model_fitting-setup", exercise.timelimit= 360}
+# history <- ....
+
+
+# plot(history)
+```
+
+```{r model_fitting-solution}
+history <- model %>%
+           fit(train_x_keras,# predictor
+               train_y_keras,# target
+               epoch = 15,
+               batch = 100)
+
+plot(history)
+```
+
+### Predicting on the testing set
+
+```{r predict, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup = "keras-setup", exercise.timelimit= 60}
+# predict_class <- ...
+```
+
+```{r predict-solution}
+# melakuan prediksi
+predict_class <- predict(model, test_x) %>%
+  k_argmax() %>% # mengambil kelas yang peluangnya paling besar
+  as.array() %>%
+  as.factor()
+# melihat hasil prediksi
+predict_class %>%
+  head()
+```
+
+### Evaluate
+
+#### Confusion Matrix (classification)
+
+```{r conf_matrix, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup = "model_fitting-setup", exercise.timelimit= 360}
+
+```
+
+```{r conf_matrix-solution}
+confusionMatrix(data = as.factor(predict_class), reference = as.factor(fashion_mnist_test$label))
+```
+
+### Model Tuning
+
+```{r model_tuning, exercise = TRUE, exercise.eval = TRUE, echo=FALSE, exercise.setup = "model_fitting-setup", exercise.timelimit= 480}
+
+```
+
+
